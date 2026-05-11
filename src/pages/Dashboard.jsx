@@ -1,3 +1,4 @@
+import { Link } from "react-router-dom"
 import AppointmentCard from "../components/AppointmentCard"
 import { sampleAppointments } from "../data/sampleAppointments"
 
@@ -8,11 +9,10 @@ function Dashboard() {
         <h2>Scheduler</h2>
 
         <nav>
-          <a href="#">Dashboard</a>
-          <a href="#">Appointments</a>
-          <a href="#">Clients</a>
-          <a href="#">Settings</a>
-          <a href="#">About</a>
+        <Link to="/dashboard">Dashboard</Link>
+        <Link to="/new">New Appointment</Link>
+        <Link to="/login">Login</Link>
+        <Link to="/signup">Sign Up</Link>
         </nav>
       </aside>
 
@@ -25,7 +25,9 @@ function Dashboard() {
             </p>
           </div>
 
-          <button className="primary-button">+ New Appointment</button>
+            <Link className="primary-button" to="/new">
+            + New Appointment
+            </Link>
         </header>
 
         <section className="stats-grid">
