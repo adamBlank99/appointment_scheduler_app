@@ -12,14 +12,14 @@ function Dashboard() {
           <a href="#">Appointments</a>
           <a href="#">Clients</a>
           <a href="#">Settings</a>
+          <a href="#">About</a>
         </nav>
       </aside>
 
       <section className="dashboard-content">
         <header className="dashboard-header">
           <div>
-            <p className="eyebrow">Appointment Management</p>
-            <h1>Dashboard</h1>
+            <p className="dashboard-title">Appointment Management</p>
             <p className="dashboard-subtitle">
               View and manage upcoming client appointments.
             </p>

@@ -1,7 +1,7 @@
 .dashboard-page {
   min-height: 100vh;
   display: grid;
-  grid-template-columns: 260px 1fr;
+  grid-template-columns: 180px 1fr;
   background: #f7f4ef;
   color: #1f2933;
 }
@@ -9,7 +9,8 @@
 .sidebar {
   background: #1f2933;
   color: white;
-  padding: 2rem;
+  padding: 1rem;
+
 }
 
 .sidebar h2 {
@@ -51,6 +52,13 @@
   font-weight: 700;
   letter-spacing: 0.12em;
   text-transform: uppercase;
+  color: #8b5e3c;
+}
+
+.dashboard-title {
+  margin: 0;
+  font-size: 2.7rem;
+  font-weight: 700;
   color: #8b5e3c;
 }
 
