@@ -1,3 +1,5 @@
+import { Link } from "react-router-dom"
+
 function AppointmentCard({ appointment }) {
     return (
       <article className="appointment-card">
@@ -25,7 +27,9 @@ function AppointmentCard({ appointment }) {
         </div>
   
         <div className="appointment-actions">
-          <button className="secondary-button">Edit</button>
+        <Link className="secondary-button" to={`/edit/${appointment.id}`}>
+          Edit
+        </Link>
           <button className="danger-button">Delete</button>
         </div>
       </article>
