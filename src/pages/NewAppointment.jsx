@@ -1,6 +1,15 @@
-import { Link } from "react-router-dom"
+import { Link, useNavigate } from "react-router-dom"
+import AppointmentForm from "../components/AppointmentForm"
 
 function NewAppointment() {
+  const navigate = useNavigate()
+
+  function handleCreateAppointment(formData) {
+    console.log("New appointment:", formData)
+    alert("Appointment created successfully!")
+    navigate("/dashboard")
+  }
+
   return (
     <main className="form-page">
       <section className="form-card">
@@ -11,46 +20,10 @@ function NewAppointment() {
         <p className="eyebrow">New Appointment</p>
         <h1>Create Appointment</h1>
 
-        <form className="appointment-form">
-          <label>
-            Client Name
-            <input type="text" placeholder="Enter client name" />
-          </label>
-
-          <label>
-            Service
-            <input type="text" placeholder="Enter service type" />
-          </label>
-
-          <label>
-            Date
-            <input type="date" />
-          </label>
-
-          <label>
-            Time
-            <input type="time" />
-          </label>
-
-          <label>
-            Status
-            <select>
-              <option>Scheduled</option>
-              <option>Pending</option>
-              <option>Completed</option>
-              <option>Cancelled</option>
-            </select>
-          </label>
-
-          <label>
-            Notes
-            <textarea placeholder="Add appointment notes"></textarea>
-          </label>
-
-          <button className="primary-button" type="submit">
-            Save Appointment
-          </button>
-        </form>
+        <AppointmentForm
+          buttonText="Save Appointment"
+          onSubmit={handleCreateAppointment}
+        />
       </section>
     </main>
   )
