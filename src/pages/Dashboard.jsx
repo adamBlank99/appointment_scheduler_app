@@ -1,8 +1,16 @@
-import { Link } from "react-router-dom"
+import { Link, useNavigate } from "react-router-dom"
+import { supabase } from "../services/supabaseClient"
 import AppointmentCard from "../components/AppointmentCard"
 import { sampleAppointments } from "../data/sampleAppointments"
 
 function Dashboard() {
+    const navigate = useNavigate()
+  
+    async function handleLogout() {
+      await supabase.auth.signOut()
+      navigate("/login")
+    }
+
   return (
     <main className="dashboard-page">
       <aside className="sidebar">
@@ -13,6 +21,7 @@ function Dashboard() {
         <Link to="/new">New Appointment</Link>
         <Link to="/login">Login</Link>
         <Link to="/signup">Sign Up</Link>
+        <button className="sidebar-logout" onClick={handleLogout}>Log Out</button>
         </nav>
       </aside>
 

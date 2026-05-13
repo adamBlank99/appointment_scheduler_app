@@ -336,3 +336,36 @@
   color: #5f6c7b;
   background: #f7f4ef;
 }
+
+.error-message {
+  background: #fee2e2;
+  color: #991b1b;
+  padding: 0.8rem 1rem;
+  border-radius: 12px;
+  margin-bottom: 1rem;
+  font-weight: 700;
+}
+
+.success-message {
+  background: #dcfce7;
+  color: #166534;
+  padding: 0.8rem 1rem;
+  border-radius: 12px;
+  margin-bottom: 1rem;
+  font-weight: 700;
+}
+
+.sidebar-logout {
+  border: none;
+  background: rgba(255, 255, 255, 0.1);
+  color: #d9e2ec;
+  text-align: left;
+  padding: 0.8rem 1rem;
+  border-radius: 12px;
+  cursor: pointer;
+  font: inherit;
+}
+
+.sidebar-logout:hover {
+  background: rgba(255, 255, 255, 0.18);
+}
