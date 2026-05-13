@@ -1,13 +1,28 @@
+import { useState } from "react"
 import { Link, useNavigate } from "react-router-dom"
 import AppointmentForm from "../components/AppointmentForm"
+import { createAppointment } from "../services/appointmentService"
+import { useAuth } from "../context/AuthContext"
 
 function NewAppointment() {
   const navigate = useNavigate()
+  const { user } = useAuth()
 
-  function handleCreateAppointment(formData) {
-    console.log("New appointment:", formData)
-    alert("Appointment created successfully!")
-    navigate("/dashboard")
+  const [errorMessage, setErrorMessage] = useState("")
+  const [loading, setLoading] = useState(false)
+
+  async function handleCreateAppointment(formData) {
+    setErrorMessage("")
+    setLoading(true)
+
+    try {
+      await createAppointment(formData, user.id)
+      navigate("/dashboard")
+    } catch (error) {
+      setErrorMessage(error.message)
+    } finally {
+      setLoading(false)
+    }
   }
 
   return (
@@ -20,8 +35,10 @@ function NewAppointment() {
         <p className="eyebrow">New Appointment</p>
         <h1>Create Appointment</h1>
 
+        {errorMessage && <p className="error-message">{errorMessage}</p>}
+
         <AppointmentForm
-          buttonText="Save Appointment"
+          buttonText={loading ? "Saving..." : "Save Appointment"}
           onSubmit={handleCreateAppointment}
         />
       </section>
