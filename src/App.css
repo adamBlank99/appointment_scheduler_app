@@ -369,3 +369,38 @@
 .sidebar-logout:hover {
   background: rgba(255, 255, 255, 0.18);
 }
+
+.dashboard-controls {
+  display: flex;
+  gap: 0.8rem;
+  flex-wrap: wrap;
+}
+
+.dashboard-controls input,
+.dashboard-controls select {
+  padding: 0.8rem 1rem;
+  border: 1px solid #d6c7b4;
+  border-radius: 999px;
+  font: inherit;
+  background: white;
+}
+
+.dashboard-controls input {
+  min-width: 240px;
+}
+
+.dashboard-controls select {
+  cursor: pointer;
+}
+
+@media (max-width: 700px) {
+  .dashboard-controls {
+    width: 100%;
+    flex-direction: column;
+  }
+
+  .dashboard-controls input,
+  .dashboard-controls select {
+    width: 100%;
+  }
+}
