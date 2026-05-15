@@ -1,23 +1,56 @@
+import { useEffect, useState } from "react"
 import { Link, useNavigate, useParams } from "react-router-dom"
 import AppointmentForm from "../components/AppointmentForm"
-import { sampleAppointments } from "../data/sampleAppointments"
+import { getAppointmentById, updateAppointment } from "../services/appointmentService"
+import { useAuth } from "../context/AuthContext"
 
 function EditAppointment() {
   const { id } = useParams()
   const navigate = useNavigate()
+  const { user } = useAuth()
 
-  const appointment = sampleAppointments.find(
-    (item) => item.id === Number(id)
-  )
+  const [appointment, setAppointment] = useState(null)
+  const [loading, setLoading] = useState(true)
+  const [saving, setSaving] = useState(false)
+  const [errorMessage, setErrorMessage] = useState("")
 
-  function handleUpdateAppointment(formData) {
-    console.log("Updated appointment:", {
-      id,
-      ...formData,
-    })
+  useEffect(() => {
+    async function loadAppointment() {
+      try {
+        const savedAppointment = await getAppointmentById(id, user.id)
+        setAppointment(savedAppointment)
+      } catch (error) {
+        setErrorMessage(error.message)
+      } finally {
+        setLoading(false)
+      }
+    }
 
-    alert("Appointment updated successfully!")
-    navigate("/dashboard")
+    loadAppointment()
+  }, [id, user.id])
+
+  async function handleUpdateAppointment(formData) {
+    setErrorMessage("")
+    setSaving(true)
+
+    try {
+      await updateAppointment(id, formData, user.id)
+      navigate("/dashboard")
+    } catch (error) {
+      setErrorMessage(error.message)
+    } finally {
+      setSaving(false)
+    }
+  }
+
+  if (loading) {
+    return (
+      <main className="form-page">
+        <section className="form-card">
+          <p>Loading appointment...</p>
+        </section>
+      </main>
+    )
   }
 
   if (!appointment) {
@@ -29,7 +62,7 @@ function EditAppointment() {
           </Link>
 
           <h1>Appointment Not Found</h1>
-          <p>This appointment does not exist.</p>
+          {errorMessage && <p className="error-message">{errorMessage}</p>}
         </section>
       </main>
     )
@@ -45,9 +78,11 @@ function EditAppointment() {
         <p className="eyebrow">Edit Appointment</p>
         <h1>Edit Appointment</h1>
 
+        {errorMessage && <p className="error-message">{errorMessage}</p>}
+
         <AppointmentForm
           initialValues={appointment}
-          buttonText="Update Appointment"
+          buttonText={saving ? "Updating..." : "Update Appointment"}
           onSubmit={handleUpdateAppointment}
         />
       </section>

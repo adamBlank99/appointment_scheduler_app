@@ -50,3 +50,43 @@ export async function createAppointment(formData, userId) {
 
   return formatAppointment(response.data)
 }
+
+
+export async function updateAppointment(appointmentId, formData, userId) {
+  const updatedAppointment = {
+    client_name: formData.clientName,
+    service: formData.service,
+    appointment_date: formData.date,
+    appointment_time: formData.time,
+    status: formData.status,
+    notes: formData.notes,
+  }
+
+  const response = await supabase
+    .from("appointments")
+    .update(updatedAppointment)
+    .eq("id", appointmentId)
+    .eq("user_id", userId)
+    .select()
+    .single()
+
+  if (response.error) {
+    throw response.error
+  }
+
+  return formatAppointment(response.data)
+}
+
+export async function deleteAppointment(appointmentId, userId) {
+  const response = await supabase
+    .from("appointments")
+    .delete()
+    .eq("id", appointmentId)
+    .eq("user_id", userId)
+
+  if (response.error) {
+    throw response.error
+  }
+
+  return true
+}
