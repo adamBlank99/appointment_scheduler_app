@@ -4,6 +4,7 @@ import Login from "./pages/Login"
 import Signup from "./pages/Signup"
 import NewAppointment from "./pages/NewAppointment"
 import EditAppointment from "./pages/EditAppointment"
+import ProtectedRoute from "./components/ProtectedRoute"
 import "./App.css"
 
 function App() {
@@ -11,11 +12,36 @@ function App() {
     <BrowserRouter>
       <Routes>
         <Route path="/" element={<Navigate to="/dashboard" />} />
+
         <Route path="/login" element={<Login />} />
         <Route path="/signup" element={<Signup />} />
-        <Route path="/dashboard" element={<Dashboard />} />
-        <Route path="/new" element={<NewAppointment />} />
-        <Route path="/edit/:id" element={<EditAppointment />} />
+
+        <Route
+          path="/dashboard"
+          element={
+            <ProtectedRoute>
+              <Dashboard />
+            </ProtectedRoute>
+          }
+        />
+
+        <Route
+          path="/new"
+          element={
+            <ProtectedRoute>
+              <NewAppointment />
+            </ProtectedRoute>
+          }
+        />
+
+        <Route
+          path="/edit/:id"
+          element={
+            <ProtectedRoute>
+              <EditAppointment />
+            </ProtectedRoute>
+          }
+        />
       </Routes>
     </BrowserRouter>
   )

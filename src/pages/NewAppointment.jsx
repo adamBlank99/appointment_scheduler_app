@@ -1,6 +1,30 @@
-import { Link } from "react-router-dom"
+import { useState } from "react"
+import { Link, useNavigate } from "react-router-dom"
+import AppointmentForm from "../components/AppointmentForm"
+import { createAppointment } from "../services/appointmentService"
+import { useAuth } from "../context/AuthContext"
 
 function NewAppointment() {
+  const navigate = useNavigate()
+  const { user } = useAuth()
+
+  const [errorMessage, setErrorMessage] = useState("")
+  const [loading, setLoading] = useState(false)
+
+  async function handleCreateAppointment(formData) {
+    setErrorMessage("")
+    setLoading(true)
+
+    try {
+      await createAppointment(formData, user.id)
+      navigate("/dashboard")
+    } catch (error) {
+      setErrorMessage(error.message)
+    } finally {
+      setLoading(false)
+    }
+  }
+
   return (
     <main className="form-page">
       <section className="form-card">
@@ -11,46 +35,12 @@ function NewAppointment() {
         <p className="eyebrow">New Appointment</p>
         <h1>Create Appointment</h1>
 
-        <form className="appointment-form">
-          <label>
-            Client Name
-            <input type="text" placeholder="Enter client name" />
-          </label>
+        {errorMessage && <p className="error-message">{errorMessage}</p>}
 
-          <label>
-            Service
-            <input type="text" placeholder="Enter service type" />
-          </label>
-
-          <label>
-            Date
-            <input type="date" />
-          </label>
-
-          <label>
-            Time
-            <input type="time" />
-          </label>
-
-          <label>
-            Status
-            <select>
-              <option>Scheduled</option>
-              <option>Pending</option>
-              <option>Completed</option>
-              <option>Cancelled</option>
-            </select>
-          </label>
-
-          <label>
-            Notes
-            <textarea placeholder="Add appointment notes"></textarea>
-          </label>
-
-          <button className="primary-button" type="submit">
-            Save Appointment
-          </button>
-        </form>
+        <AppointmentForm
+          buttonText={loading ? "Saving..." : "Save Appointment"}
+          onSubmit={handleCreateAppointment}
+        />
       </section>
     </main>
   )
