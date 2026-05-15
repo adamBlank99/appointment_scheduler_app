@@ -1,14 +1,13 @@
 import { useEffect, useState } from "react"
 import { Link, useNavigate } from "react-router-dom"
 import { supabase } from "../services/supabaseClient"
-import { getAppointments } from "../services/appointmentService"
+import { getAppointments, deleteAppointment } from "../services/appointmentService"
 import { useAuth } from "../context/AuthContext"
 import AppointmentCard from "../components/AppointmentCard"
 
 function Dashboard() {
   const navigate = useNavigate()
   const { user } = useAuth()
-
   const [appointments, setAppointments] = useState([])
   const [loading, setLoading] = useState(true)
   const [errorMessage, setErrorMessage] = useState("")
@@ -28,6 +27,28 @@ function Dashboard() {
     loadAppointments()
   }, [user.id])
 
+  async function handleDeleteAppointment(appointmentId) {
+    const confirmDelete = window.confirm(
+      "Are you sure you want to delete this appointment?"
+    )
+  
+    if (!confirmDelete) {
+      return
+    }
+  
+    try {
+      await deleteAppointment(appointmentId, user.id)
+  
+      setAppointments((currentAppointments) =>
+        currentAppointments.filter(
+          (appointment) => appointment.id !== appointmentId
+        )
+      )
+    } catch (error) {
+      setErrorMessage(error.message)
+    }
+  }
+  
   async function handleLogout() {
     await supabase.auth.signOut()
     navigate("/login")
@@ -115,7 +136,8 @@ function Dashboard() {
                 <AppointmentCard
                   key={appointment.id}
                   appointment={appointment}
-                />
+                  onDelete={handleDeleteAppointment}
+              />
               ))}
             </div>
           )}

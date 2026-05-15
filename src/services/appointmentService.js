@@ -90,3 +90,18 @@ export async function deleteAppointment(appointmentId, userId) {
 
   return true
 }
+
+export async function getAppointmentById(appointmentId, userId) {
+  const response = await supabase
+    .from("appointments")
+    .select("*")
+    .eq("id", appointmentId)
+    .eq("user_id", userId)
+    .single()
+
+  if (response.error) {
+    throw response.error
+  }
+
+  return formatAppointment(response.data)
+}
