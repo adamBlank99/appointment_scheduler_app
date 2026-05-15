@@ -83,7 +83,7 @@
 }
 
 .primary-button {
-  background: #1f2933;
+  background: #622dff;
   color: white;
 }
 
@@ -245,7 +245,6 @@
   }
 }
 
-.auth-page,
 .form-page {
   min-height: 100vh;
   display: flex;
@@ -255,7 +254,44 @@
   background: #f7f4ef;
 }
 
-.auth-card,
+.auth-page {
+  min-height: 100vh;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 2.5rem;
+  padding: 2rem;
+  background: #622dff;
+}
+
+.auth-card{
+  width: min(100%, 560px);
+  background: black;
+  padding: 2rem;
+  border-radius: 24px;
+  box-shadow: 0 14px 35px rgba(0, 0, 0, 3);
+}
+
+.auth-title {
+  margin: 0;
+  font-size: clamp(4rem, 12vw, 8rem);
+  line-height: 0.9;
+  letter-spacing: 0.08em;
+  text-align: center;
+  color: #ffffff;
+
+  text-shadow:
+    1px 1px 0 #000000,
+    2px 2px 0 #000000,
+    3px 3px 0 #000000,
+    4px 4px 0 #000000,
+    5px 5px 0 #000000,
+    6px 6px 0 #000000,
+    7px 7px 0 #000000,
+    10px 14px 25px rgba(0, 0, 0, 0.28);
+}
+
 .form-card {
   width: min(100%, 560px);
   background: white;
@@ -286,6 +322,7 @@
   display: grid;
   gap: 0.4rem;
   font-weight: 700;
+  color: white;
 }
 
 .auth-form input,
@@ -306,12 +343,12 @@
 
 .auth-footer {
   margin-top: 1.5rem;
-  color: #5f6c7b;
+  color: #c9c2dc;
 }
 
 .auth-footer a,
 .back-link {
-  color: #8b5e3c;
+  color: #ffffff;
   font-weight: 700;
   text-decoration: none;
 }

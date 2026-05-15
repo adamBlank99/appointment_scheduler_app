@@ -32,18 +32,13 @@ function Login() {
 
   return (
     <main className="auth-page">
+      <h1 className="auth-title">WELCOME</h1>
+      <h1 className="auth-title">to Task Helper</h1>
       <section className="auth-card">
-        <p className="eyebrow">Welcome Back</p>
-        <h1>Log In</h1>
-        <p className="auth-text">
-          Log in to view and manage your appointments.
-        </p>
-
         {errorMessage && <p className="error-message">{errorMessage}</p>}
-
         <form className="auth-form" onSubmit={handleLogin}>
           <label>
-            Email
+            email
             <input
               type="email"
               placeholder="you@example.com"
@@ -54,7 +49,7 @@ function Login() {
           </label>
 
           <label>
-            Password
+            password
             <input
               type="password"
               placeholder="Enter your password"
