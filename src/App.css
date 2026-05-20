@@ -1,13 +1,15 @@
+@import url('https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;500;600;700&display=swap');
+
 .dashboard-page {
   min-height: 100vh;
   display: grid;
   grid-template-columns: 180px 1fr;
-  background: #f7f4ef;
-  color: #1f2933;
+  background: #000000;
+  color: #622dff;
 }
 
 .sidebar {
-  background: #1f2933;
+  background: #371893;
   color: white;
   padding: 1rem;
 
@@ -52,7 +54,7 @@
   font-weight: 700;
   letter-spacing: 0.12em;
   text-transform: uppercase;
-  color: #8b5e3c;
+  color: #ffffff;
 }
 
 .dashboard-title {
@@ -83,18 +85,18 @@
 }
 
 .primary-button {
-  background: #1f2933;
+  background: #622dff;
   color: white;
 }
 
 .secondary-button {
-  background: #e8dfd3;
-  color: #1f2933;
+  background: #b13dff;
+  color: #ffffff;
 }
 
 .danger-button {
-  background: #f5d0d0;
-  color: #8a1f1f;
+  background: #ff3d3d;
+  color: #ffffff;
 }
 
 .stats-grid {
@@ -245,20 +247,69 @@
   }
 }
 
-.auth-page,
 .form-page {
   min-height: 100vh;
   display: flex;
   align-items: center;
   justify-content: center;
   padding: 2rem;
-  background: #f7f4ef;
+  background: radial-gradient(
+    circle at center,
+    #000000 0%,
+    #000000 45%,
+    #2b106b 75%,
+    #622dff 100%
+  );;
 }
 
-.auth-card,
+.auth-page {
+  min-height: 100vh;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 2.5rem;
+  padding: 2rem;
+background: radial-gradient(
+  circle at center,
+  #000000 0%,
+  #000000 45%,
+  #2b106b 75%,
+  #622dff 100%
+);
+}
+
+.auth-card{
+  width: min(100%, 560px);
+  background: black;
+  padding: 2rem;
+  border-radius: 24px;
+  box-shadow: 0 14px 35px rgba(0, 0, 0, 3);
+}
+
+.auth-title {
+  margin: 0;
+  font-family: "Space Grotesk", sans-serif;
+  font-size: clamp(4rem, 12vw, 6rem);
+  line-height: 0.9;
+  letter-spacing: 0.08em;
+  text-align: center;
+  color: #ffffff;
+
+  text-shadow:
+    1px 1px 0 #000000,
+    2px 2px 0 #000000,
+    3px 3px 0 #000000,
+    4px 4px 0 #000000,
+    5px 5px 0 #000000,
+    6px 6px 0 #000000,
+    7px 7px 0 #000000,
+    10px 14px 25px rgba(0, 0, 0, 0.28);
+}
+
 .form-card {
   width: min(100%, 560px);
-  background: white;
+  background: #622dff;
   padding: 3rem;
   border-radius: 24px;
   box-shadow: 0 14px 35px rgba(0, 0, 0, 0.08);
@@ -268,6 +319,7 @@
 .form-card h1 {
   margin: 0 0 1rem;
   font-size: 2.5rem;
+  color: #ffffff;
 }
 
 .auth-text {
@@ -286,6 +338,7 @@
   display: grid;
   gap: 0.4rem;
   font-weight: 700;
+  color: white;
 }
 
 .auth-form input,
@@ -306,12 +359,12 @@
 
 .auth-footer {
   margin-top: 1.5rem;
-  color: #5f6c7b;
+  color: #c9c2dc;
 }
 
 .auth-footer a,
 .back-link {
-  color: #8b5e3c;
+  color: #ffffff;
   font-weight: 700;
   text-decoration: none;
 }
