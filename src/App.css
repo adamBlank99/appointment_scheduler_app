@@ -79,13 +79,14 @@
 .danger-button {
   border: none;
   border-radius: 999px;
-  padding: 0.75rem 1.1rem;
+  padding: 0.75rem .5rem;
   cursor: pointer;
   font-weight: 700;
+  font-size: 1.6rem;
 }
 
 .primary-button {
-  background: #622dff;
+  background: #2e1578;
   color: white;
 }
 

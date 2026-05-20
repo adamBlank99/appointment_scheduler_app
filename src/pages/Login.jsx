@@ -4,7 +4,7 @@ import { supabase } from "../services/supabaseClient"
 
 function Login() {
   const navigate = useNavigate()
-
+  const buttonText = "Continue as a guest"
   const [email, setEmail] = useState("")
   const [password, setPassword] = useState("")
   const [errorMessage, setErrorMessage] = useState("")
@@ -66,6 +66,10 @@ function Login() {
         <p className="auth-footer">
           Don&apos;t have an account? <Link to="/signup">Sign up</Link>
         </p>
+
+        <button className="secondary-button" type = "button">
+          {buttonText}
+        </button>
       </section>
     </main>
   )
