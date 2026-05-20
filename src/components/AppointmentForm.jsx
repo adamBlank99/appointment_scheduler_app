@@ -2,7 +2,6 @@ import { useState } from "react"
 
 const emptyForm = {
   clientName: "",
-  service: "",
   date: "",
   time: "",
   status: "Scheduled",
@@ -28,7 +27,7 @@ function AppointmentForm({
   function handleSubmit(event) {
     event.preventDefault()
 
-    if (!formData.clientName || !formData.service || !formData.date || !formData.time) {
+    if (!formData.clientName || !formData.date || !formData.time) {
       alert("Please fill out the required fields.")
       return
     }
@@ -39,24 +38,13 @@ function AppointmentForm({
   return (
     <form className="appointment-form" onSubmit={handleSubmit}>
       <label>
-        Client Name
+        Name
         <input
           type="text"
           name="clientName"
           value={formData.clientName}
           onChange={handleChange}
           placeholder="Enter client name"
-        />
-      </label>
-
-      <label>
-        Service
-        <input
-          type="text"
-          name="service"
-          value={formData.service}
-          onChange={handleChange}
-          placeholder="Enter service type"
         />
       </label>
 

@@ -32,8 +32,7 @@ function Login() {
 
   return (
     <main className="auth-page">
-      <h1 className="auth-title">WELCOME</h1>
-      <h1 className="auth-title">to Task Helper</h1>
+      <h1 className="auth-title">Easy Task Helper</h1>
       <section className="auth-card">
         {errorMessage && <p className="error-message">{errorMessage}</p>}
         <form className="auth-form" onSubmit={handleLogin}>

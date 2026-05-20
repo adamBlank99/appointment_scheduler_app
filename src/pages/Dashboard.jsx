@@ -76,8 +76,7 @@ function Dashboard() {
     const searchText = searchTerm.toLowerCase()
 
     const matchesSearch =
-      appointment.clientName.toLowerCase().includes(searchText) ||
-      appointment.service.toLowerCase().includes(searchText)
+      appointment.clientName.toLowerCase().includes(searchText)
 
     const matchesStatus =
       statusFilter === "All" || appointment.status === statusFilter
@@ -108,7 +107,7 @@ return (
 
       <nav>
         <Link to="/dashboard">Dashboard</Link>
-        <Link to="/new">New Appointment</Link>
+        <Link to="/new">New Task</Link>
 
         <button className="sidebar-logout" onClick={handleLogout}>
           Log Out
@@ -119,15 +118,15 @@ return (
     <section className="dashboard-content">
       <header className="dashboard-header">
         <div>
-          <p className="eyebrow">Appointment Management</p>
+          <p className="eyebrow">Task Management</p>
           <h1>Dashboard</h1>
           <p className="dashboard-subtitle">
-            View and manage upcoming client appointments.
+            View and manage upcoming tasks.
           </p>
         </div>
 
         <Link className="primary-button" to="/new">
-          + New Appointment
+          + New Task
         </Link>
       </header>
 
@@ -135,7 +134,7 @@ return (
 
       <section className="stats-grid">
         <div className="stat-card">
-          <p>Total Appointments</p>
+          <p>Total Tasks</p>
           <h2>{appointments.length}</h2>
         </div>
 
@@ -157,12 +156,12 @@ return (
 
       <section className="appointments-section">
       <div className="section-header">
-        <h2>Appointments</h2>
+        <h2>Tasks</h2>
 
         <div className="dashboard-controls">
           <input
             type="text"
-            placeholder="Search by client or service..."
+            placeholder="Search by name"
             value={searchTerm}
             onChange={(event) => setSearchTerm(event.target.value)}
           />
@@ -191,9 +190,9 @@ return (
         {loading ? (
           <p>Loading appointments...</p>
         ) : appointments.length === 0 ? (
-          <p>No appointments yet. Create your first appointment to get started.</p>
+          <p>No tasks yet. Create your first task to get started.</p>
         ) : filteredAppointments.length === 0 ? (
-          <p>No appointments match your search or filter.</p>
+          <p>No tasks match your search or filter.</p>
         ) : (
           <div className="appointments-grid">
             {filteredAppointments.map((appointment) => (

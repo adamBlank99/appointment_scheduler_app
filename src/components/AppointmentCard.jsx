@@ -6,7 +6,6 @@ function AppointmentCard({ appointment, onDelete }) {
       <div className="appointment-card-header">
         <div>
           <h3>{appointment.clientName}</h3>
-          <p>{appointment.service}</p>
         </div>
 
         <span className={`status-badge ${appointment.status.toLowerCase()}`}>
