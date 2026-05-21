@@ -7,7 +7,7 @@ import AppointmentCard from "../components/AppointmentCard"
 
 function Dashboard() {
   const navigate = useNavigate()
-  const { user } = useAuth()
+  const { user, isGuest, endGuestSession } = useAuth()
   const [appointments, setAppointments] = useState([])
   const [loading, setLoading] = useState(true)
   const [errorMessage, setErrorMessage] = useState("")
@@ -19,6 +19,14 @@ function Dashboard() {
   useEffect(() => {
     async function loadAppointments() {
       try {
+        if (isGuest) {
+          const guestAppointments =
+            JSON.parse(sessionStorage.getItem("guestAppointments")) || []
+  
+          setAppointments(guestAppointments)
+          return
+        }
+  
         const savedAppointments = await getAppointments(user.id)
         setAppointments(savedAppointments)
       } catch (error) {
@@ -27,13 +35,13 @@ function Dashboard() {
         setLoading(false)
       }
     }
-
+  
     loadAppointments()
-  }, [user.id])
+  }, [user, isGuest])
 
   async function handleDeleteAppointment(appointmentId) {
     const confirmDelete = window.confirm(
-      "Are you sure you want to delete this appointment?"
+      "Are you sure you want to delete this task?"
     )
   
     if (!confirmDelete) {
@@ -41,6 +49,23 @@ function Dashboard() {
     }
   
     try {
+      if (isGuest) {
+        const guestAppointments =
+          JSON.parse(sessionStorage.getItem("guestAppointments")) || []
+  
+        const updatedGuestAppointments = guestAppointments.filter(
+          (appointment) => appointment.id !== appointmentId
+        )
+  
+        sessionStorage.setItem(
+          "guestAppointments",
+          JSON.stringify(updatedGuestAppointments)
+        )
+  
+        setAppointments(updatedGuestAppointments)
+        return
+      }
+  
       await deleteAppointment(appointmentId, user.id)
   
       setAppointments((currentAppointments) =>
@@ -54,6 +79,13 @@ function Dashboard() {
   }
   
   async function handleLogout() {
+    if (isGuest) {
+      sessionStorage.removeItem("guestAppointments")
+      endGuestSession()
+      navigate("/login")
+      return
+    }
+  
     await supabase.auth.signOut()
     navigate("/login")
   }

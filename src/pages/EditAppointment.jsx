@@ -1,13 +1,16 @@
 import { useEffect, useState } from "react"
 import { Link, useNavigate, useParams } from "react-router-dom"
 import AppointmentForm from "../components/AppointmentForm"
-import { getAppointmentById, updateAppointment } from "../services/appointmentService"
+import {
+  getAppointmentById,
+  updateAppointment,
+} from "../services/appointmentService"
 import { useAuth } from "../context/AuthContext"
 
 function EditAppointment() {
   const { id } = useParams()
   const navigate = useNavigate()
-  const { user } = useAuth()
+  const { user, isGuest } = useAuth()
 
   const [appointment, setAppointment] = useState(null)
   const [loading, setLoading] = useState(true)
@@ -17,6 +20,22 @@ function EditAppointment() {
   useEffect(() => {
     async function loadAppointment() {
       try {
+        if (isGuest) {
+          const guestAppointments =
+            JSON.parse(sessionStorage.getItem("guestAppointments")) || []
+
+          const guestAppointment = guestAppointments.find(
+            (appointment) => appointment.id === id
+          )
+
+          setAppointment(guestAppointment || null)
+          return
+        }
+
+        if (!user) {
+          return
+        }
+
         const savedAppointment = await getAppointmentById(id, user.id)
         setAppointment(savedAppointment)
       } catch (error) {
@@ -27,13 +46,37 @@ function EditAppointment() {
     }
 
     loadAppointment()
-  }, [id, user.id])
+  }, [id, user, isGuest])
 
   async function handleUpdateAppointment(formData) {
     setErrorMessage("")
     setSaving(true)
 
     try {
+      if (isGuest) {
+        const guestAppointments =
+          JSON.parse(sessionStorage.getItem("guestAppointments")) || []
+
+        const updatedGuestAppointments = guestAppointments.map((appointment) => {
+          if (appointment.id === id) {
+            return {
+              id: id,
+              ...formData,
+            }
+          }
+
+          return appointment
+        })
+
+        sessionStorage.setItem(
+          "guestAppointments",
+          JSON.stringify(updatedGuestAppointments)
+        )
+
+        navigate("/dashboard")
+        return
+      }
+
       await updateAppointment(id, formData, user.id)
       navigate("/dashboard")
     } catch (error) {

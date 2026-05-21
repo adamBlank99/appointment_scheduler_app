@@ -6,7 +6,7 @@ import { useAuth } from "../context/AuthContext"
 
 function NewAppointment() {
   const navigate = useNavigate()
-  const { user } = useAuth()
+  const { user, isGuest} = useAuth()
 
   const [errorMessage, setErrorMessage] = useState("")
   const [loading, setLoading] = useState(false)
@@ -16,6 +16,28 @@ function NewAppointment() {
     setLoading(true)
 
     try {
+      if (isGuest) {
+        const currentGuestAppointments =
+          JSON.parse(sessionStorage.getItem("guestAppointments")) || []
+
+        const newGuestAppointment = {
+          id: crypto.randomUUID(),
+          ...formData,
+        }
+
+        const updatedGuestAppointments = [
+          ...currentGuestAppointments,
+          newGuestAppointment,
+        ]
+
+        sessionStorage.setItem(
+          "guestAppointments",
+          JSON.stringify(updatedGuestAppointments)
+        )
+
+        navigate("/dashboard")
+        return
+      }
       await createAppointment(formData, user.id)
       navigate("/dashboard")
     } catch (error) {
@@ -24,6 +46,7 @@ function NewAppointment() {
       setLoading(false)
     }
   }
+
 
   return (
     <main className="form-page">
