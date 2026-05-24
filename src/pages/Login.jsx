@@ -1,14 +1,20 @@
 import { useState } from "react"
 import { Link, useNavigate } from "react-router-dom"
 import { supabase } from "../services/supabaseClient"
+import { useAuth } from "../context/AuthContext"
 
 function Login() {
+  const { startGuestSession } = useAuth()
   const navigate = useNavigate()
-
   const [email, setEmail] = useState("")
   const [password, setPassword] = useState("")
   const [errorMessage, setErrorMessage] = useState("")
   const [loading, setLoading] = useState(false)
+
+  function handleGuestAccess(){
+    startGuestSession()
+    navigate("/dashboard")
+  }
 
   async function handleLogin(event) {
     event.preventDefault()
@@ -66,6 +72,10 @@ function Login() {
         <p className="auth-footer">
           Don&apos;t have an account? <Link to="/signup">Sign up</Link>
         </p>
+
+        <button className="secondary-button" type = "button" onClick={handleGuestAccess}>
+          <Link to="/dashboard">Continue as Guest</Link>
+        </button>
       </section>
     </main>
   )
