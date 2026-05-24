@@ -73,7 +73,7 @@ function Login() {
           Don&apos;t have an account? <Link to="/signup">Sign up</Link>
         </p>
 
-        <button className="secondary-button" type = "button" onClick={handleGuestAccess}>
+        <button className="secondary-button guest-button" type = "button" onClick={handleGuestAccess}>
           <Link to="/dashboard">Continue as Guest</Link>
         </button>
       </section>

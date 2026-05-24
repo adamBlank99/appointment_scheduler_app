@@ -1,7 +1,7 @@
 import { useEffect, useState } from "react"
 import { Link, useNavigate } from "react-router-dom"
 import { supabase } from "../services/supabaseClient"
-import { getAppointments, deleteAppointment } from "../services/appointmentService"
+import { getAppointments, deleteAppointment, completeAppointment } from "../services/appointmentService"
 import { useAuth } from "../context/AuthContext"
 import AppointmentCard from "../components/AppointmentCard"
 
@@ -132,6 +132,20 @@ function Dashboard() {
     return secondDate - firstDate
   })
   
+  async function handleCompleteAppointment(appointmentId) {
+    try {
+      const updatedAppointment = await completeAppointment(appointmentId, user.id)
+  
+      setAppointments((currentAppointments) =>
+        currentAppointments.map((appointment) =>
+          appointment.id === appointmentId ? updatedAppointment : appointment
+        )
+      )
+    } catch (error) {
+      setErrorMessage(error.message)
+    }
+  }
+
 return (
   <main className="dashboard-page">
     <aside className="sidebar">
@@ -232,7 +246,8 @@ return (
                 key={appointment.id}
                 appointment={appointment}
                 onDelete={handleDeleteAppointment}
-            />
+                onComplete={handleCompleteAppointment}
+              />
             ))}
           </div>
         )}
