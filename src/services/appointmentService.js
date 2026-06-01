@@ -11,6 +11,22 @@ function formatAppointment(row) {
   }
 }
 
+export async function completeAppointment(appointmentId, userId) {
+  const response = await supabase
+    .from("appointments")
+    .update({ status: "Completed" })
+    .eq("id", appointmentId)
+    .eq("user_id", userId)
+    .select()
+    .single()
+
+  if (response.error) {
+    throw response.error
+  }
+
+  return formatAppointment(response.data)
+}
+
 export async function getAppointments(userId) {
   const response = await supabase
     .from("appointments")

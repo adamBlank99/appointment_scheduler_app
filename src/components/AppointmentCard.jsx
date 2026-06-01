@@ -1,7 +1,8 @@
 import { Link } from "react-router-dom"
+import { Check } from "lucide-react"
 
-function AppointmentCard({ appointment, onDelete }) {
-  return (
+function AppointmentCard({ appointment, onDelete, onComplete }) {
+    return (
     <article className="appointment-card">
       <div className="appointment-card-header">
         <div>
@@ -26,6 +27,15 @@ function AppointmentCard({ appointment, onDelete }) {
       </div>
 
       <div className="appointment-actions">
+      <button
+          className="complete-button"
+          type="button"
+          title="Mark complete"
+          onClick={() => onComplete(appointment.id)}
+        >
+        <Check size={18} strokeWidth={6} />
+        </button>
+
         <Link className="secondary-button" to={`/edit/${appointment.id}`}>
           Edit
         </Link>
