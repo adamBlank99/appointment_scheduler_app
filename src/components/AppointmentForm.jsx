@@ -4,7 +4,7 @@ const emptyForm = {
   clientName: "",
   date: "",
   time: "",
-  status: "Scheduled",
+  priority: "Medium",
   notes: "",
 }
 
@@ -69,16 +69,15 @@ function AppointmentForm({
       </label>
 
       <label>
-        Status
+        Priority
         <select
-          name="status"
-          value={formData.status}
+          name="priority"
+          value={formData.priority}
           onChange={handleChange}
         >
-          <option>Scheduled</option>
-          <option>Pending</option>
-          <option>Completed</option>
-          <option>Cancelled</option>
+          <option>Low</option>
+          <option>Medium</option>
+          <option>High</option>
         </select>
       </label>
 

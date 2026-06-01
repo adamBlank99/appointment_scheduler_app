@@ -55,8 +55,8 @@ function NewAppointment() {
           ← Back to Dashboard
         </Link>
 
-        <p className="eyebrow">New Appointment</p>
-        <h1>Create Appointment</h1>
+        <p className="eyebrow">New Task</p>
+        <h1>Create Task</h1>
 
         {errorMessage && <p className="error-message">{errorMessage}</p>}
 
