@@ -13,7 +13,7 @@ function Dashboard() {
   const [errorMessage, setErrorMessage] = useState("")
 
   const [searchTerm, setSearchTerm] = useState("")
-  const [statusFilter, setStatusFilter] = useState("All")
+  const [priorityFilter, setPriorityFilter] = useState("All")
   const [sortOrder, setSortOrder] = useState("soonest")
 
   useEffect(() => {
@@ -90,16 +90,16 @@ function Dashboard() {
     navigate("/login")
   }
 
-  const scheduledCount = appointments.filter(
-    (appointment) => appointment.status === "Scheduled"
+  const highCount = appointments.filter(
+    (appointment) => appointment.priority === "High"
   ).length
 
-  const pendingCount = appointments.filter(
-    (appointment) => appointment.status === "Pending"
+  const mediumCount = appointments.filter(
+    (appointment) => appointment.priority === "Medium"
   ).length
 
-  const completedCount = appointments.filter(
-    (appointment) => appointment.status === "Completed"
+  const lowCount = appointments.filter(
+    (appointment) => appointment.priority === "Low"
   ).length
 
   const filteredAppointments = appointments
@@ -110,10 +110,10 @@ function Dashboard() {
     const matchesSearch =
       appointment.clientName.toLowerCase().includes(searchText)
 
-    const matchesStatus =
-      statusFilter === "All" || appointment.status === statusFilter
+    const matchesPriority =
+      priorityFilter === "All" || appointment.priority === priorityFilter
 
-    return matchesSearch && matchesStatus
+    return matchesSearch && matchesPriority
   })
 
   .sort((firstAppointment, secondAppointment) => {
@@ -185,18 +185,18 @@ return (
         </div>
 
         <div className="stat-card">
-          <p>Scheduled</p>
-          <h2>{scheduledCount}</h2>
+          <p>High</p>
+          <h2>{highCount}</h2>
         </div>
 
         <div className="stat-card">
-          <p>Pending</p>
-          <h2>{pendingCount}</h2>
+          <p>Medium</p>
+          <h2>{mediumCount}</h2>
         </div>
 
         <div className="stat-card">
-          <p>Completed</p>
-          <h2>{completedCount}</h2>
+          <p>Low</p>
+          <h2>{lowCount}</h2>
         </div>
       </section>
 
@@ -213,14 +213,13 @@ return (
           />
 
           <select
-            value={statusFilter}
-            onChange={(event) => setStatusFilter(event.target.value)}
+            value={priorityFilter}
+            onChange={(event) => setPriorityFilter(event.target.value)}
           >
-            <option value="All">All Statuses</option>
-            <option value="Scheduled">Scheduled</option>
-            <option value="Pending">Pending</option>
-            <option value="Completed">Completed</option>
-            <option value="Cancelled">Cancelled</option>
+            <option value="All">All Priorities</option>
+            <option value="High">High</option>
+            <option value="Medium">Medium</option>
+            <option value="Low">Low</option>
           </select>
 
           <select

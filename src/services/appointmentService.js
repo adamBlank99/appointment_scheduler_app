@@ -6,7 +6,7 @@ function formatAppointment(row) {
     clientName: row.client_name,
     date: row.appointment_date,
     time: row.appointment_time?.slice(0, 5),
-    status: row.status,
+    priority: row.priority || "Medium",
     notes: row.notes || "",
   }
 }
@@ -14,7 +14,7 @@ function formatAppointment(row) {
 export async function completeAppointment(appointmentId, userId) {
   const response = await supabase
     .from("appointments")
-    .update({ status: "Completed" })
+    .update({ priority: "Medium" })
     .eq("id", appointmentId)
     .eq("user_id", userId)
     .select()
@@ -48,7 +48,7 @@ export async function createAppointment(formData, userId) {
     client_name: formData.clientName,
     appointment_date: formData.date,
     appointment_time: formData.time,
-    status: formData.status,
+    priority: formData.priority,
     notes: formData.notes,
   }
 
@@ -68,10 +68,11 @@ export async function createAppointment(formData, userId) {
 
 export async function updateAppointment(appointmentId, formData, userId) {
   const updatedAppointment = {
+    user_id: userId,
     client_name: formData.clientName,
     appointment_date: formData.date,
     appointment_time: formData.time,
-    status: formData.status,
+    priority: formData.priority,
     notes: formData.notes,
   }
 
