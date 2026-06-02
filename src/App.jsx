@@ -35,6 +35,15 @@ function App() {
         />
 
         <Route
+          path="/completed-tasks"
+          element={
+            <ProtectedRoute>
+              <CompletedTasks />
+            </ProtectedRoute>
+          }
+        />
+
+        <Route
           path="/edit/:id"
           element={
             <ProtectedRoute>

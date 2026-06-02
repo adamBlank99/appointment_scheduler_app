@@ -175,10 +175,10 @@ return (
     <aside className="sidebar">
   <h2>Task Manager</h2>
 
+
   <nav>
     <Link to="/dashboard">Dashboard</Link>
     <Link to="/new">New Task</Link>
-    <Link to="/completedtasks">Completed tasks </Link>
 
     <button className="sidebar-logout" onClick={handleLogout}>
       Log Out
@@ -291,4 +291,4 @@ return (
 )
 }
 
-export default Dashboard
+export default CompletedTasks
