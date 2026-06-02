@@ -90,29 +90,38 @@ function Dashboard() {
     navigate("/login")
   }
 
-  const highCount = appointments.filter(
-    (appointment) => appointment.priority === "High"
-  ).length
-
-  const mediumCount = appointments.filter(
-    (appointment) => appointment.priority === "Medium"
-  ).length
-
-  const lowCount = appointments.filter(
+  const activeAppointments = appointments.filter(
+    (appointment) => !appointment.isCompleted
+  )
+  
+  const completedAppointments = appointments.filter(
+    (appointment) => appointment.isCompleted
+  )
+  
+  const totalTaskCount = activeAppointments.length
+  
+  const lowCount = activeAppointments.filter(
     (appointment) => appointment.priority === "Low"
   ).length
-
-  const filteredAppointments = appointments
-
-  .filter((appointment) => {
+  
+  const mediumCount = activeAppointments.filter(
+    (appointment) => appointment.priority === "Medium"
+  ).length
+  
+  const highCount = activeAppointments.filter(
+    (appointment) => appointment.priority === "High"
+  ).length
+  
+  const visibleAppointments = activeAppointments.filter((appointment) => {
     const searchText = searchTerm.toLowerCase()
-
+  
     const matchesSearch =
-      appointment.clientName.toLowerCase().includes(searchText)
-
+      appointment.clientName.toLowerCase().includes(searchText) ||
+      appointment.notes.toLowerCase().includes(searchText)
+  
     const matchesPriority =
       priorityFilter === "All" || appointment.priority === priorityFilter
-
+  
     return matchesSearch && matchesPriority
   })
 
@@ -134,11 +143,11 @@ function Dashboard() {
   
   async function handleCompleteAppointment(appointmentId) {
     try {
-      const updatedAppointment = await completeAppointment(appointmentId, user.id)
+      const completedAppointment = await completeAppointment(appointmentId, user.id)
   
       setAppointments((currentAppointments) =>
         currentAppointments.map((appointment) =>
-          appointment.id === appointmentId ? updatedAppointment : appointment
+          appointment.id === appointmentId ? completedAppointment : appointment
         )
       )
     } catch (error) {
@@ -149,17 +158,18 @@ function Dashboard() {
 return (
   <main className="dashboard-page">
     <aside className="sidebar">
-      <h2>Scheduler</h2>
+  <h2>Task Manager</h2>
 
-      <nav>
-        <Link to="/dashboard">Dashboard</Link>
-        <Link to="/new">New Task</Link>
 
-        <button className="sidebar-logout" onClick={handleLogout}>
-          Log Out
-        </button>
-      </nav>
-    </aside>
+  <nav>
+    <Link to="/dashboard">Dashboard</Link>
+    <Link to="/new">New Task</Link>
+
+    <button className="sidebar-logout" onClick={handleLogout}>
+      Log Out
+    </button>
+  </nav>
+</aside>
 
     <section className="dashboard-content">
       <header className="dashboard-header">
@@ -170,10 +180,20 @@ return (
             View and manage upcoming tasks.
           </p>
         </div>
-
         <Link className="primary-button" to="/new">
           + New Task
         </Link>
+
+        <section className="sidebar-completed">
+        <h3 className="sidebar-completed-title">Completed Tasks</h3>
+
+        <div className="completed-count-box">
+          <span className="completed-count-circle">
+            {completedAppointments.length}
+          </span>
+        </div>
+      </section>
+
       </header>
 
       {errorMessage && <p className="error-message">{errorMessage}</p>}
@@ -181,7 +201,7 @@ return (
       <section className="stats-grid">
         <div className="stat-card">
           <p>Total Tasks</p>
-          <h2>{appointments.length}</h2>
+          <h2>{totalTaskCount}</h2>
         </div>
 
         <div className="stat-card">
@@ -232,24 +252,24 @@ return (
         </div>
       </div>
 
-        {loading ? (
-          <p>Loading appointments...</p>
-        ) : appointments.length === 0 ? (
-          <p>No tasks yet. Create your first task to get started.</p>
-        ) : filteredAppointments.length === 0 ? (
-          <p>No tasks match your search or filter.</p>
-        ) : (
-          <div className="appointments-grid">
-            {filteredAppointments.map((appointment) => (
-              <AppointmentCard
-                key={appointment.id}
-                appointment={appointment}
-                onDelete={handleDeleteAppointment}
-                onComplete={handleCompleteAppointment}
-              />
-            ))}
-          </div>
-        )}
+          {loading ? (
+      <p>Loading tasks...</p>
+    ) : activeAppointments.length === 0 ? (
+      <p>No active tasks yet. Create your first task to get started.</p>
+    ) : visibleAppointments.length === 0 ? (
+      <p>No active tasks match your search or filter.</p>
+    ) : (
+      <div className="appointments-grid">
+        {visibleAppointments.map((appointment) => (
+          <AppointmentCard
+            key={appointment.id}
+            appointment={appointment}
+            onDelete={handleDeleteAppointment}
+            onComplete={handleCompleteAppointment}
+          />
+        ))}
+      </div>
+    )}
       </section>
     </section>
   </main>
