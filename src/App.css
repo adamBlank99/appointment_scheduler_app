@@ -156,6 +156,8 @@
 
 .section-header h2 {
   margin: 0;
+  font-size: 2rem;
+
 }
 
 .section-header input {
@@ -494,6 +496,7 @@ background: radial-gradient(
   align-items: center;
   gap: 0.75rem;
 }
+
 
 .sidebar-completed-title {
   margin: 0;

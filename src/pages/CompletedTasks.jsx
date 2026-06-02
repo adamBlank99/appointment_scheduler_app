@@ -1,13 +1,13 @@
 import { useEffect, useState } from "react"
 import { Link, useNavigate } from "react-router-dom"
 import { supabase } from "../services/supabaseClient"
-import { getAppointments, deleteAppointment, completeAppointment } from "../services/appointmentService"
+import { getAppointments, deleteAppointment } from "../services/appointmentService"
 import { useAuth } from "../context/AuthContext"
-import AppointmentCard from "../components/AppointmentCard"
 
-function Dashboard() {
+function CompletedTasks() {
   const navigate = useNavigate()
   const { user, isGuest, endGuestSession } = useAuth()
+
   const [appointments, setAppointments] = useState([])
   const [loading, setLoading] = useState(true)
   const [errorMessage, setErrorMessage] = useState("")
@@ -22,11 +22,15 @@ function Dashboard() {
         if (isGuest) {
           const guestAppointments =
             JSON.parse(sessionStorage.getItem("guestAppointments")) || []
-  
+
           setAppointments(guestAppointments)
           return
         }
-  
+
+        if (!user) {
+          return
+        }
+
         const savedAppointments = await getAppointments(user.id)
         setAppointments(savedAppointments)
       } catch (error) {
@@ -35,39 +39,39 @@ function Dashboard() {
         setLoading(false)
       }
     }
-  
+
     loadAppointments()
   }, [user, isGuest])
 
   async function handleDeleteAppointment(appointmentId) {
     const confirmDelete = window.confirm(
-      "Are you sure you want to delete this task?"
+      "Are you sure you want to delete this completed task?"
     )
-  
+
     if (!confirmDelete) {
       return
     }
-  
+
     try {
       if (isGuest) {
         const guestAppointments =
           JSON.parse(sessionStorage.getItem("guestAppointments")) || []
-  
+
         const updatedGuestAppointments = guestAppointments.filter(
           (appointment) => appointment.id !== appointmentId
         )
-  
+
         sessionStorage.setItem(
           "guestAppointments",
           JSON.stringify(updatedGuestAppointments)
         )
-  
+
         setAppointments(updatedGuestAppointments)
         return
       }
-  
+
       await deleteAppointment(appointmentId, user.id)
-  
+
       setAppointments((currentAppointments) =>
         currentAppointments.filter(
           (appointment) => appointment.id !== appointmentId
@@ -77,7 +81,7 @@ function Dashboard() {
       setErrorMessage(error.message)
     }
   }
-  
+
   async function handleLogout() {
     if (isGuest) {
       sessionStorage.removeItem("guestAppointments")
@@ -85,119 +89,81 @@ function Dashboard() {
       navigate("/login")
       return
     }
-  
+
     await supabase.auth.signOut()
     navigate("/login")
   }
 
-  const activeAppointments = appointments.filter(
-    (appointment) => !appointment.isCompleted
-  )
-  
   const completedAppointments = appointments.filter(
     (appointment) => appointment.isCompleted
   )
-  
-  const totalTaskCount = activeAppointments.length
-  
-  const lowCount = activeAppointments.filter(
-    (appointment) => appointment.priority === "Low"
-  ).length
-  
-  const mediumCount = activeAppointments.filter(
-    (appointment) => appointment.priority === "Medium"
-  ).length
-  
-  const highCount = activeAppointments.filter(
+
+  const completedHighCount = completedAppointments.filter(
     (appointment) => appointment.priority === "High"
   ).length
-  
-  const visibleAppointments = activeAppointments.filter((appointment) => {
-    const searchText = searchTerm.toLowerCase()
-  
-    const matchesSearch =
-      appointment.clientName.toLowerCase().includes(searchText) ||
-      appointment.notes.toLowerCase().includes(searchText)
-  
-    const matchesPriority =
-      priorityFilter === "All" || appointment.priority === priorityFilter
-  
-    return matchesSearch && matchesPriority
-  })
 
-  .sort((firstAppointment, secondAppointment) => {
-    const firstDate = new Date(
-      `${firstAppointment.date}T${firstAppointment.time}`
-    )
+  const completedMediumCount = completedAppointments.filter(
+    (appointment) => appointment.priority === "Medium"
+  ).length
 
-    const secondDate = new Date(
-      `${secondAppointment.date}T${secondAppointment.time}`
-    )
+  const completedLowCount = completedAppointments.filter(
+    (appointment) => appointment.priority === "Low"
+  ).length
 
-    if (sortOrder === "soonest") {
-      return firstDate - secondDate
-    }
+  const visibleCompletedAppointments = completedAppointments
+    .filter((appointment) => {
+      const searchText = searchTerm.toLowerCase()
 
-    return secondDate - firstDate
-  })
-  
-  async function handleCompleteAppointment(appointmentId) {
-    try {
-      if (!user) {
-        setAppointments((currentAppointments) =>
-          currentAppointments.map((appointment) =>
-            appointment.id === appointmentId
-              ? { ...appointment, isCompleted: true }
-              : appointment
-          )
-        )
-  
-        return
+      const matchesSearch =
+        appointment.clientName.toLowerCase().includes(searchText) ||
+        (appointment.notes || "").toLowerCase().includes(searchText)
+
+      const matchesPriority =
+        priorityFilter === "All" || appointment.priority === priorityFilter
+
+      return matchesSearch && matchesPriority
+    })
+    .sort((firstAppointment, secondAppointment) => {
+      const firstDate = new Date(
+        `${firstAppointment.date}T${firstAppointment.time}`
+      )
+
+      const secondDate = new Date(
+        `${secondAppointment.date}T${secondAppointment.time}`
+      )
+
+      if (sortOrder === "soonest") {
+        return firstDate - secondDate
       }
-  
-      const completedAppointment = await completeAppointment(
-        appointmentId,
-        user.id
-      )
-  
-      setAppointments((currentAppointments) =>
-        currentAppointments.map((appointment) =>
-          appointment.id === appointmentId ? completedAppointment : appointment
-        )
-      )
-    } catch (error) {
-      setErrorMessage(error.message)
-    }
-  }
 
-return (
-  <main className="dashboard-page">
-    <aside className="sidebar">
-  <h2>Task Manager</h2>
+      return secondDate - firstDate
+    })
 
+  return (
+    <main className="dashboard-page">
+      <aside className="sidebar">
+        <h2>Task Manager</h2>
 
-  <nav>
-    <Link to="/dashboard">Dashboard</Link>
-    <Link to="/new">New Task</Link>
+        <nav>
+          <Link to="/dashboard">Dashboard</Link>
+          <Link to="/new">New Task</Link>
+          <Link to="/completed">Completed Tasks</Link>
 
-    <button className="sidebar-logout" onClick={handleLogout}>
-      Log Out
-    </button>
-  </nav>
-</aside>
+          <button className="sidebar-logout" onClick={handleLogout}>
+            Log Out
+          </button>
+        </nav>
+      </aside>
 
-    <section className="dashboard-content">
-      <header className="dashboard-header">
-        <div>
-          <p className="eyebrow">Task Management</p>
-          <h1>Dashboard</h1>
-          <p className="dashboard-subtitle">
-            View and manage upcoming tasks.
-          </p>
-        </div>
-        <Link className="primary-button" to="/new">
-          + New Task
-        </Link>
+      <section className="dashboard-content">
+        <header className="dashboard-header">
+          <div>
+            <p className="eyebrow">Task Management</p>
+            <h1>Completed Tasks</h1>
+            <p className="dashboard-subtitle">
+              View and manage completed tasks.
+            </p>
+          </div>
 
         <section className="sidebar-completed">
         <h3 className="sidebar-completed-title">Completed Tasks</h3>
@@ -208,87 +174,120 @@ return (
           </span>
         </div>
       </section>
+        </header>
 
-      </header>
 
-      {errorMessage && <p className="error-message">{errorMessage}</p>}
+        {errorMessage && <p className="error-message">{errorMessage}</p>}
 
-      <section className="stats-grid">
-        <div className="stat-card">
-          <p>Total Tasks</p>
-          <h2>{totalTaskCount}</h2>
-        </div>
+        <section className="stats-grid">
+          <div className="stat-card">
+            <p>Total Completed Tasks</p>
+            <h2>{completedAppointments.length}</h2>
+          </div>
 
-        <div className="stat-card">
-          <p>High</p>
-          <h2>{highCount}</h2>
-        </div>
+          <div className="stat-card">
+            <p>High</p>
+            <h2>{completedHighCount}</h2>
+          </div>
 
-        <div className="stat-card">
-          <p>Medium</p>
-          <h2>{mediumCount}</h2>
-        </div>
+          <div className="stat-card">
+            <p>Medium</p>
+            <h2>{completedMediumCount}</h2>
+          </div>
 
-        <div className="stat-card">
-          <p>Low</p>
-          <h2>{lowCount}</h2>
-        </div>
-      </section>
+          <div className="stat-card">
+            <p>Low</p>
+            <h2>{completedLowCount}</h2>
+          </div>
+        </section>
 
-      <section className="appointments-section">
-      <div className="section-header">
-        <h2>Tasks</h2>
+        <section className="appointments-section">
+          <div className="section-header">
+            <h2>Completed Tasks</h2>
 
-        <div className="dashboard-controls">
-          <input
-            type="text"
-            placeholder="Search by name"
-            value={searchTerm}
-            onChange={(event) => setSearchTerm(event.target.value)}
-          />
+            <div className="dashboard-controls">
+              <input
+                type="text"
+                placeholder="Search by name or notes"
+                value={searchTerm}
+                onChange={(event) => setSearchTerm(event.target.value)}
+              />
 
-          <select
-            value={priorityFilter}
-            onChange={(event) => setPriorityFilter(event.target.value)}
-          >
-            <option value="All">All Priorities</option>
-            <option value="High">High</option>
-            <option value="Medium">Medium</option>
-            <option value="Low">Low</option>
-          </select>
+              <select
+                value={priorityFilter}
+                onChange={(event) => setPriorityFilter(event.target.value)}
+              >
+                <option value="All">All Priorities</option>
+                <option value="High">High</option>
+                <option value="Medium">Medium</option>
+                <option value="Low">Low</option>
+              </select>
 
-          <select
-            value={sortOrder}
-            onChange={(event) => setSortOrder(event.target.value)}
-          >
-            <option value="soonest">Soonest First</option>
-            <option value="latest">Latest First</option>
-          </select>
-        </div>
-      </div>
+              <select
+                value={sortOrder}
+                onChange={(event) => setSortOrder(event.target.value)}
+              >
+                <option value="soonest">Soonest First</option>
+                <option value="latest">Latest First</option>
+              </select>
+            </div>
+          </div>
 
           {loading ? (
-      <p>Loading tasks...</p>
-    ) : activeAppointments.length === 0 ? (
-      <p>No active tasks yet. Create your first task to get started.</p>
-    ) : visibleAppointments.length === 0 ? (
-      <p>No active tasks match your search or filter.</p>
-    ) : (
-      <div className="appointments-grid">
-        {visibleAppointments.map((appointment) => (
-          <AppointmentCard
-            key={appointment.id}
-            appointment={appointment}
-            onDelete={handleDeleteAppointment}
-            onComplete={handleCompleteAppointment}
-          />
-        ))}
-      </div>
-    )}
+            <p>Loading completed tasks...</p>
+          ) : completedAppointments.length === 0 ? (
+            <p>No completed tasks yet.</p>
+          ) : visibleCompletedAppointments.length === 0 ? (
+            <p>No completed tasks match your search or filter.</p>
+          ) : (
+            <div className="appointments-grid">
+              {visibleCompletedAppointments.map((appointment) => {
+                const priority = appointment.priority || "Medium"
+
+                return (
+                  <article className="appointment-card" key={appointment.id}>
+                    <div className="appointment-card-header">
+                      <div>
+                        <h3>{appointment.clientName}</h3>
+                      </div>
+
+                      <span
+                        className={`priority-badge ${priority.toLowerCase()}`}
+                      >
+                        {priority}
+                      </span>
+                    </div>
+
+                    <div className="appointment-details">
+                      <p>
+                        <strong>Date:</strong> {appointment.date}
+                      </p>
+                      <p>
+                        <strong>Time:</strong> {appointment.time}
+                      </p>
+                      <p>
+                        <strong>Notes:</strong> {appointment.notes}
+                      </p>
+                    </div>
+
+                    <div className="appointment-actions">
+                      <button
+                        className="danger-button"
+                        type="button"
+                        onClick={() => handleDeleteAppointment(appointment.id)}
+                      >
+                        Delete
+                      </button>
+                    </div>
+                  </article>
+                )
+              })}
+            </div>
+          )}
+        </section>
       </section>
-    </section>
-  </main>
-)
+    </main>
+  )
 }
 
 export default CompletedTasks

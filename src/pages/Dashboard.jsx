@@ -178,7 +178,7 @@ return (
   <nav>
     <Link to="/dashboard">Dashboard</Link>
     <Link to="/new">New Task</Link>
-    <Link to="/completedtasks">Completed tasks </Link>
+    <Link to="/completed">Completed tasks </Link>
 
     <button className="sidebar-logout" onClick={handleLogout}>
       Log Out
@@ -195,9 +195,6 @@ return (
             View and manage upcoming tasks.
           </p>
         </div>
-        <Link className="primary-button" to="/new">
-          + New Task
-        </Link>
 
         <section className="sidebar-completed">
         <h3 className="sidebar-completed-title">Completed Tasks</h3>
@@ -239,6 +236,10 @@ return (
       <div className="section-header">
         <h2>Tasks</h2>
 
+        <Link className="primary-button" to="/new">
+          + New Task
+        </Link>
+        
         <div className="dashboard-controls">
           <input
             type="text"
@@ -270,7 +271,7 @@ return (
           {loading ? (
       <p>Loading tasks...</p>
     ) : activeAppointments.length === 0 ? (
-      <p>No active tasks yet. Create your first task to get started.</p>
+      <p>No active tasks yet. Create a task to get started.</p>
     ) : visibleAppointments.length === 0 ? (
       <p>No active tasks match your search or filter.</p>
     ) : (
