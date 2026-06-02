@@ -1,5 +1,6 @@
 import { BrowserRouter, Navigate, Route, Routes } from "react-router-dom"
 import Dashboard from "./pages/Dashboard"
+import CompletedTasks from "./pages/CompletedTasks"
 import Login from "./pages/Login"
 import Signup from "./pages/Signup"
 import NewAppointment from "./pages/NewAppointment"
@@ -21,6 +22,15 @@ function App() {
           element={
             <ProtectedRoute>
               <Dashboard />
+            </ProtectedRoute>
+          }
+        />
+
+        <Route
+          path="/completed"
+          element={
+            <ProtectedRoute>
+              <CompletedTasks />
             </ProtectedRoute>
           }
         />
