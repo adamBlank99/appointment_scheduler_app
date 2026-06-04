@@ -3,6 +3,7 @@ import { Link, useNavigate } from "react-router-dom"
 import AppointmentForm from "../components/AppointmentForm"
 import { createAppointment } from "../services/appointmentService"
 import { useAuth } from "../context/AuthContext"
+import { Pencil } from "lucide-react"
 
 function NewAppointment() {
   const navigate = useNavigate()
@@ -55,8 +56,10 @@ function NewAppointment() {
           ← Back to Dashboard
         </Link>
 
-        <p className="eyebrow">New Task</p>
-        <h1>Create Task</h1>
+        <h1 className="form-page-h1">What's on the agenda
+        <Pencil className="form-title-icon" size={33} strokeWidth={3} />
+        ?
+        </h1>
 
         {errorMessage && <p className="error-message">{errorMessage}</p>}
 

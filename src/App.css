@@ -107,7 +107,7 @@
 }
 
 .primary-button {
-  background: #2e1578;
+  background: #604ccf;
   color: white;
 }
 
@@ -164,7 +164,8 @@
 
 .section-header h2 {
   margin: 0;
-  font-size: 2rem;
+  padding: .3rem 1rem;
+  font-size: 2.5rem;
 
 }
 
@@ -297,6 +298,21 @@
   );;
 }
 
+.form-card .form-page-h1 {
+  width: 100%;
+  margin: 0.1rem 0 1rem;
+  font-size: 2rem;
+  color: #ffffff;
+
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+}
+
+.form-title-icon {
+  flex-shrink: 0;
+}
+
 .auth-page {
   min-height: 100vh;
   display: flex;
@@ -344,8 +360,8 @@ background: radial-gradient(
 
 .form-card {
   width: min(100%, 560px);
-  background: #622dff;
-  padding: 3rem;
+  background: #3b11b8;
+  padding: 1.5rem 2rem 2rem;
   border-radius: 24px;
   box-shadow: 0 14px 35px rgba(0, 0, 0, 0.08);
 }
@@ -407,7 +423,7 @@ background: radial-gradient(
 
 .back-link {
   display: inline-block;
-  margin-bottom: 2rem;
+  margin-bottom: 1rem;
 }
 
 .primary-button,

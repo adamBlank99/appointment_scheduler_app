@@ -44,7 +44,7 @@ function AppointmentForm({
           name="clientName"
           value={formData.clientName}
           onChange={handleChange}
-          placeholder="Enter client name"
+          placeholder="Enter task name"
         />
       </label>
 
