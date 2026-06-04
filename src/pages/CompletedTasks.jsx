@@ -3,6 +3,8 @@ import { Link, useNavigate } from "react-router-dom"
 import { supabase } from "../services/supabaseClient"
 import { getAppointments, deleteAppointment } from "../services/appointmentService"
 import { useAuth } from "../context/AuthContext"
+import { NotebookText } from "lucide-react"
+
 
 function CompletedTasks() {
   const navigate = useNavigate()
@@ -142,12 +144,19 @@ function CompletedTasks() {
   return (
     <main className="dashboard-page">
       <aside className="sidebar">
-        <h2>Task Manager</h2>
+      <h2 className="sidebar-logo">
+      <span className="sidebar-logo-text">
+        <span>EASY</span>
+        <span>Task</span>
+        <span>Helper</span>
+      </span>
+      <NotebookText className="sidebar-logo-icon" size={50} strokeWidth={2.5} />
+    </h2>
 
         <nav>
           <Link to="/dashboard">Dashboard</Link>
-          <Link to="/new">New Task</Link>
           <Link to="/completed">Completed Tasks</Link>
+          <Link to="/new">New Task</Link>
 
           <button className="sidebar-logout" onClick={handleLogout}>
             Log Out
@@ -157,33 +166,20 @@ function CompletedTasks() {
 
       <section className="dashboard-content">
         <header className="dashboard-header">
-          <div>
-            <p className="eyebrow">Task Management</p>
-            <h1>Completed Tasks</h1>
-            <p className="dashboard-subtitle">
-              View and manage completed tasks.
-            </p>
-          </div>
-
-        <section className="sidebar-completed">
-        <h3 className="sidebar-completed-title">Completed Tasks</h3>
-
-        <div className="completed-count-box">
-          <span className="completed-count-circle">
-            {completedAppointments.length}
-          </span>
+        <div className="dashboard-title-group">
+          <p className="eyebrow">Task Management</p>
+          <h1 className="page-title-bubble">Completed Tasks</h1>
+          <p className="dashboard-subtitle">
+            View and manage completed tasks.
+          </p>
         </div>
-      </section>
         </header>
 
 
         {errorMessage && <p className="error-message">{errorMessage}</p>}
 
+        <section className="stats-and-completed">
         <section className="stats-grid">
-          <div className="stat-card">
-            <p>Total Completed Tasks</p>
-            <h2>{completedAppointments.length}</h2>
-          </div>
 
           <div className="stat-card">
             <p>High</p>
@@ -200,6 +196,17 @@ function CompletedTasks() {
             <h2>{completedLowCount}</h2>
           </div>
         </section>
+
+        <section className="sidebar-completed">
+        <h3 className="sidebar-completed-title">Completed Tasks</h3>
+
+        <div className="completed-count-box">
+          <span className="completed-count-circle">
+            {completedAppointments.length}
+          </span>
+        </div>
+      </section>
+      </section>
 
         <section className="appointments-section">
           <div className="section-header">
@@ -234,15 +241,17 @@ function CompletedTasks() {
           </div>
 
           {loading ? (
-            <p>Loading completed tasks...</p>
-          ) : completedAppointments.length === 0 ? (
-            <p>No completed tasks yet.</p>
-          ) : visibleCompletedAppointments.length === 0 ? (
-            <p>No completed tasks match your search or filter.</p>
-          ) : (
-            <div className="appointments-grid">
-              {visibleCompletedAppointments.map((appointment) => {
-                const priority = appointment.priority || "Medium"
+          <p className="completed-empty-message">Loading completed tasks...</p>
+        ) : completedAppointments.length === 0 ? (
+          <p className="completed-empty-message">No completed tasks yet.</p>
+        ) : visibleCompletedAppointments.length === 0 ? (
+          <p className="completed-empty-message completed-empty-message-filter">
+            No completed tasks match your search or filter.
+          </p>
+        ) : (
+          <div className="appointments-grid">
+            {visibleCompletedAppointments.map((appointment) => {
+              const priority = appointment.priority || "Medium"
 
                 return (
                   <article className="appointment-card" key={appointment.id}>

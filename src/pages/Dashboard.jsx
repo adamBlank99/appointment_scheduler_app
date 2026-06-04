@@ -4,6 +4,7 @@ import { supabase } from "../services/supabaseClient"
 import { getAppointments, deleteAppointment, completeAppointment } from "../services/appointmentService"
 import { useAuth } from "../context/AuthContext"
 import AppointmentCard from "../components/AppointmentCard"
+import { NotebookText } from "lucide-react"
 
 function Dashboard() {
   const navigate = useNavigate()
@@ -143,15 +144,19 @@ function Dashboard() {
   
   async function handleCompleteAppointment(appointmentId) {
     try {
-      if (!user) {
-        setAppointments((currentAppointments) =>
-          currentAppointments.map((appointment) =>
-            appointment.id === appointmentId
-              ? { ...appointment, isCompleted: true }
-              : appointment
-          )
+      if (isGuest) {
+        const updatedGuestAppointments = appointments.map((appointment) =>
+          appointment.id === appointmentId
+            ? { ...appointment, isCompleted: true }
+            : appointment
         )
   
+        sessionStorage.setItem(
+          "guestAppointments",
+          JSON.stringify(updatedGuestAppointments)
+        )
+  
+        setAppointments(updatedGuestAppointments)
         return
       }
   
@@ -173,12 +178,19 @@ function Dashboard() {
 return (
   <main className="dashboard-page">
     <aside className="sidebar">
-  <h2>Task Manager</h2>
+    <h2 className="sidebar-logo">
+  <span className="sidebar-logo-text">
+    <span>EASY</span>
+    <span>Task</span>
+    <span>Helper</span>
+  </span>
+  <NotebookText className="sidebar-logo-icon" size={50} strokeWidth={2.5} />
+</h2>
 
   <nav>
     <Link to="/dashboard">Dashboard</Link>
+    <Link to="/completed">Completed Tasks </Link>
     <Link to="/new">New Task</Link>
-    <Link to="/completed">Completed tasks </Link>
 
     <button className="sidebar-logout" onClick={handleLogout}>
       Log Out
@@ -188,28 +200,18 @@ return (
 
     <section className="dashboard-content">
       <header className="dashboard-header">
-        <div>
+      <div className="dashboard-title-group">
           <p className="eyebrow">Task Management</p>
-          <h1>Dashboard</h1>
+          <h1 className="page-title-bubble">Dashboard</h1>
           <p className="dashboard-subtitle">
             View and manage upcoming tasks.
           </p>
         </div>
-
-        <section className="sidebar-completed">
-        <h3 className="sidebar-completed-title">Completed Tasks</h3>
-
-        <div className="completed-count-box">
-          <span className="completed-count-circle">
-            {completedAppointments.length}
-          </span>
-        </div>
-      </section>
-
       </header>
 
       {errorMessage && <p className="error-message">{errorMessage}</p>}
 
+      <section className="stats-and-completed">
       <section className="stats-grid">
         <div className="stat-card">
           <p>Total Tasks</p>
@@ -232,6 +234,17 @@ return (
         </div>
       </section>
 
+      <section className="sidebar-completed">
+        <h3 className="sidebar-completed-title">Completed Tasks</h3>
+
+        <div className="completed-count-box">
+          <span className="completed-count-circle">
+            {completedAppointments.length}
+          </span>
+        </div>
+      </section>
+
+    </section>
       <section className="appointments-section">
       <div className="section-header">
         <h2>Tasks</h2>
@@ -268,24 +281,28 @@ return (
         </div>
       </div>
 
-          {loading ? (
-      <p>Loading tasks...</p>
-    ) : activeAppointments.length === 0 ? (
-      <p>No active tasks yet. Create a task to get started.</p>
-    ) : visibleAppointments.length === 0 ? (
-      <p>No active tasks match your search or filter.</p>
-    ) : (
-      <div className="appointments-grid">
-        {visibleAppointments.map((appointment) => (
-          <AppointmentCard
-            key={appointment.id}
-            appointment={appointment}
-            onDelete={handleDeleteAppointment}
-            onComplete={handleCompleteAppointment}
-          />
-        ))}
-      </div>
-    )}
+      {loading ? (
+    <p className="dashboard-empty-message">Loading tasks...</p>
+  ) : activeAppointments.length === 0 ? (
+    <p className="dashboard-empty-message">
+      No active tasks yet. Create a task to get started.
+    </p>
+  ) : visibleAppointments.length === 0 ? (
+    <p className="dashboard-empty-message dashboard-empty-message-filter">
+      No active tasks match your search or filter.
+    </p>
+  ) : (
+    <div className="appointments-grid">
+      {visibleAppointments.map((appointment) => (
+        <AppointmentCard
+          key={appointment.id}
+          appointment={appointment}
+          onDelete={handleDeleteAppointment}
+          onComplete={handleCompleteAppointment}
+        />
+      ))}
+    </div>
+  )}
       </section>
     </section>
   </main>

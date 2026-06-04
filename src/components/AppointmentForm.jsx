@@ -44,7 +44,7 @@ function AppointmentForm({
           name="clientName"
           value={formData.clientName}
           onChange={handleChange}
-          placeholder="Enter client name"
+          placeholder="Enter task name"
         />
       </label>
 
@@ -87,7 +87,7 @@ function AppointmentForm({
           name="notes"
           value={formData.notes}
           onChange={handleChange}
-          placeholder="Add appointment notes"
+          placeholder="Add notes"
         ></textarea>
       </label>
 
