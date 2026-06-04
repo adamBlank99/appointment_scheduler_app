@@ -188,9 +188,9 @@ return (
 
     <section className="dashboard-content">
       <header className="dashboard-header">
-        <div>
+      <div className="dashboard-title-group">
           <p className="eyebrow">Task Management</p>
-          <h1>Dashboard</h1>
+          <h1 className="page-title-bubble">Dashboard</h1>
           <p className="dashboard-subtitle">
             View and manage upcoming tasks.
           </p>

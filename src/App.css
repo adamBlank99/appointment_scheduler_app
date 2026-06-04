@@ -55,7 +55,7 @@
 
 .eyebrow {
   margin: 0 0 0.5rem;
-  font-size: 0.8rem;
+  font-size: 1rem;
   font-weight: 700;
   letter-spacing: 0.12em;
   text-transform: uppercase;
@@ -76,7 +76,15 @@
 
 .dashboard-subtitle {
   margin: 0.5rem 0 0;
-  color: #5f6c7b;
+  gap: 10rem;
+  color: #ffffff;
+  font-size: 1rem;
+}
+
+.dashboard-title-group {
+  display: flex;
+  flex-direction: column;
+  gap: .5rem;
 }
 
 .primary-button,
@@ -528,4 +536,13 @@ background: radial-gradient(
   display: flex;
   align-items: center;
   justify-content: center;
+}
+
+.page-title-bubble {
+  display: inline-flex;
+  background: #ffffff;
+  color: #622dff;
+  border-radius: 999px;
+  padding: 0.65rem 1.5rem;
+  line-height: .7;
 }

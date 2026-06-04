@@ -157,13 +157,13 @@ function CompletedTasks() {
 
       <section className="dashboard-content">
         <header className="dashboard-header">
-          <div>
-            <p className="eyebrow">Task Management</p>
-            <h1>Completed Tasks</h1>
-            <p className="dashboard-subtitle">
-              View and manage completed tasks.
-            </p>
-          </div>
+        <div className="dashboard-title-group">
+          <p className="eyebrow">Task Management</p>
+          <h1 className="page-title-bubble">Completed Tasks</h1>
+          <p className="dashboard-subtitle">
+            View and manage completed tasks.
+          </p>
+        </div>
 
         <section className="sidebar-completed">
         <h3 className="sidebar-completed-title">Completed Tasks</h3>
