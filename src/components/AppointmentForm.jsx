@@ -87,7 +87,7 @@ function AppointmentForm({
           name="notes"
           value={formData.notes}
           onChange={handleChange}
-          placeholder="Add appointment notes"
+          placeholder="Add notes"
         ></textarea>
       </label>
 

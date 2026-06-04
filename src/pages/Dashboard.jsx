@@ -4,6 +4,7 @@ import { supabase } from "../services/supabaseClient"
 import { getAppointments, deleteAppointment, completeAppointment } from "../services/appointmentService"
 import { useAuth } from "../context/AuthContext"
 import AppointmentCard from "../components/AppointmentCard"
+import { NotebookText } from "lucide-react"
 
 function Dashboard() {
   const navigate = useNavigate()
@@ -143,15 +144,19 @@ function Dashboard() {
   
   async function handleCompleteAppointment(appointmentId) {
     try {
-      if (!user) {
-        setAppointments((currentAppointments) =>
-          currentAppointments.map((appointment) =>
-            appointment.id === appointmentId
-              ? { ...appointment, isCompleted: true }
-              : appointment
-          )
+      if (isGuest) {
+        const updatedGuestAppointments = appointments.map((appointment) =>
+          appointment.id === appointmentId
+            ? { ...appointment, isCompleted: true }
+            : appointment
         )
   
+        sessionStorage.setItem(
+          "guestAppointments",
+          JSON.stringify(updatedGuestAppointments)
+        )
+  
+        setAppointments(updatedGuestAppointments)
         return
       }
   
@@ -173,7 +178,14 @@ function Dashboard() {
 return (
   <main className="dashboard-page">
     <aside className="sidebar">
-  <h2>Task Manager</h2>
+    <h2 className="sidebar-logo">
+  <span className="sidebar-logo-text">
+    <span>EASY</span>
+    <span>Task</span>
+    <span>Helper</span>
+  </span>
+  <NotebookText className="sidebar-logo-icon" size={50} strokeWidth={2.5} />
+</h2>
 
   <nav>
     <Link to="/dashboard">Dashboard</Link>
@@ -195,21 +207,11 @@ return (
             View and manage upcoming tasks.
           </p>
         </div>
-
-        <section className="sidebar-completed">
-        <h3 className="sidebar-completed-title">Completed Tasks</h3>
-
-        <div className="completed-count-box">
-          <span className="completed-count-circle">
-            {completedAppointments.length}
-          </span>
-        </div>
-      </section>
-
       </header>
 
       {errorMessage && <p className="error-message">{errorMessage}</p>}
 
+      <section className="stats-and-completed">
       <section className="stats-grid">
         <div className="stat-card">
           <p>Total Tasks</p>
@@ -232,6 +234,17 @@ return (
         </div>
       </section>
 
+      <section className="sidebar-completed">
+        <h3 className="sidebar-completed-title">Completed Tasks</h3>
+
+        <div className="completed-count-box">
+          <span className="completed-count-circle">
+            {completedAppointments.length}
+          </span>
+        </div>
+      </section>
+
+    </section>
       <section className="appointments-section">
       <div className="section-header">
         <h2>Tasks</h2>

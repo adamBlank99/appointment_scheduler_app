@@ -5,11 +5,17 @@
   display: grid;
   grid-template-columns: 180px 1fr;
   background: #000000;
-  color: #622dff;
+  background: radial-gradient(
+    circle at center,
+    #000000 0%,
+    #000000 45%,
+    #2b106b 75%,
+    #622dff 100%
+  );
 }
 
 .sidebar {
-  background: #371893;
+  background: rgba(91, 54, 203, 0.5);
   color: white;
   padding: 2rem 0;
   position: sticky;
@@ -22,8 +28,9 @@
 }
 
 .sidebar h2 {
-  margin: 0 0 3rem;
+  margin: 0 0 2rem;
   padding: 0 2rem;
+  font-size: 1.5rem;
 }
 
 .sidebar nav {
@@ -68,6 +75,40 @@
   background: rgba(255, 255, 255, 0.18);
 }
 
+.sidebar .sidebar-logo {
+  margin: 0 1rem 3rem;
+  padding: 0.5rem .5rem;
+  background: rgb(235, 228, 253);
+  color: #421bb7;
+  border: 4px solid #8b5cf6;
+  border-radius: 18px;
+
+  display: flex;
+  align-items: center;
+  justify-content: flex-start;
+  gap: 0rem;
+
+  box-sizing: border-box;
+}
+
+.sidebar .sidebar-logo-text {
+  display: flex;
+  flex-direction: column;
+  line-height: 1.15;
+  font-size: 1.35rem;
+  font-weight: 800;
+  letter-spacing: 0.04em;
+}
+
+.sidebar .sidebar-logo-text span:last-child {
+  color: #371893;
+}
+
+.sidebar .sidebar-logo-icon {
+  color: #422891;
+  flex-shrink: 0;
+}
+
 .dashboard-content {
   padding: 2rem;
 }
@@ -104,7 +145,7 @@
 
 .dashboard-header h1 {
   margin: 0;
-  font-size: 2.7rem;
+  font-size: 2.3rem;
 }
 
 .dashboard-subtitle {
@@ -150,7 +191,7 @@
   padding: .4rem 1rem;
   cursor: pointer;
   font-weight: 700;
-  font-size: 1.4rem;
+  font-size: 1.2rem;
   color: #ffffff;
   background: #604ccf;
   display: inline-flex;
@@ -171,7 +212,7 @@
 }
 
 .complete-button {
-  background: #166534;
+  background: #3e26f7e6;
   color: #ffffff;
 }
 .stats-grid {
@@ -205,7 +246,6 @@
   border-radius: 24px;
   box-shadow: 0 14px 35px rgba(0, 0, 0, 0.06);
   max-width: 1600px;
-  min-height: 1600px;
 }
 
 .section-header {
@@ -260,6 +300,7 @@
 
 .appointment-card h3 {
   margin: 0;
+  font-size: 1.2rem;
 }
 
 .appointment-card p {
@@ -275,7 +316,7 @@
 }
 
 .priority-badge.high {
-  background: #b42424;
+  background: #b424a6;
   color: #fff9f9;
 }
 
@@ -349,7 +390,7 @@
     #000000 45%,
     #2b106b 75%,
     #622dff 100%
-  );;
+  );
 }
 
 .form-card .form-page-h1 {
@@ -572,9 +613,9 @@ background: radial-gradient(
 .completed-count-box {
   width: 75%;
   min-height: 80px;
-  background: #ffffff;
+  background: rgb(235, 228, 253);
   border-radius: 18px;
-  padding: .1rem;
+  padding: 1rem;
   display: flex;
   align-items: center;
   justify-content: center;
@@ -583,7 +624,7 @@ background: radial-gradient(
 .completed-count-circle {
   width: 4rem;
   height: 4rem;
-  background: #166534;
+  background: #3e26f7e6;
   color: #ffffff;
   border-radius: 50%;
   font-size: 1.5rem;
@@ -599,6 +640,31 @@ background: radial-gradient(
   color: #622dff;
   border: 3px solid #622dff;
   border-radius: 999px;
-  padding: .8rem 1.5rem;
+  padding: .8rem 2.5rem;
   line-height: 0.7;
+}
+
+.stats-and-completed {
+  display: flex;
+  align-items: flex-start;
+  gap: 3rem;
+  margin-bottom: 2rem;
+}
+
+.stats-and-completed .stats-grid {
+  margin-bottom: 0;
+}
+
+.stats-and-completed .sidebar-completed {
+  margin-top: -3rem;
+  flex-shrink: 0;
+}
+
+.stats-and-completed .completed-count-box {
+  margin-top: 0;
+}
+
+.stats-and-completed .sidebar-completed-title {
+  margin: 1 0 0.75rem;
+  font-size: 1.5rem;
 }

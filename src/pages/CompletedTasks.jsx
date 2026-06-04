@@ -3,6 +3,8 @@ import { Link, useNavigate } from "react-router-dom"
 import { supabase } from "../services/supabaseClient"
 import { getAppointments, deleteAppointment } from "../services/appointmentService"
 import { useAuth } from "../context/AuthContext"
+import { NotebookText } from "lucide-react"
+
 
 function CompletedTasks() {
   const navigate = useNavigate()
@@ -142,7 +144,14 @@ function CompletedTasks() {
   return (
     <main className="dashboard-page">
       <aside className="sidebar">
-        <h2>Task Manager</h2>
+      <h2 className="sidebar-logo">
+      <span className="sidebar-logo-text">
+        <span>EASY</span>
+        <span>Task</span>
+        <span>Helper</span>
+      </span>
+      <NotebookText className="sidebar-logo-icon" size={50} strokeWidth={2.5} />
+    </h2>
 
         <nav>
           <Link to="/dashboard">Dashboard</Link>
@@ -164,26 +173,13 @@ function CompletedTasks() {
             View and manage completed tasks.
           </p>
         </div>
-
-        <section className="sidebar-completed">
-        <h3 className="sidebar-completed-title">Completed Tasks</h3>
-
-        <div className="completed-count-box">
-          <span className="completed-count-circle">
-            {completedAppointments.length}
-          </span>
-        </div>
-      </section>
         </header>
 
 
         {errorMessage && <p className="error-message">{errorMessage}</p>}
 
+        <section className="stats-and-completed">
         <section className="stats-grid">
-          <div className="stat-card">
-            <p>Completed Tasks</p>
-            <h2>{completedAppointments.length}</h2>
-          </div>
 
           <div className="stat-card">
             <p>High</p>
@@ -200,6 +196,17 @@ function CompletedTasks() {
             <h2>{completedLowCount}</h2>
           </div>
         </section>
+
+        <section className="sidebar-completed">
+        <h3 className="sidebar-completed-title">Completed Tasks</h3>
+
+        <div className="completed-count-box">
+          <span className="completed-count-circle">
+            {completedAppointments.length}
+          </span>
+        </div>
+      </section>
+      </section>
 
         <section className="appointments-section">
           <div className="section-header">
