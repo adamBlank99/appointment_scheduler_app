@@ -146,8 +146,8 @@ function CompletedTasks() {
 
         <nav>
           <Link to="/dashboard">Dashboard</Link>
-          <Link to="/new">New Task</Link>
           <Link to="/completed">Completed Tasks</Link>
+          <Link to="/new">New Task</Link>
 
           <button className="sidebar-logout" onClick={handleLogout}>
             Log Out
@@ -181,7 +181,7 @@ function CompletedTasks() {
 
         <section className="stats-grid">
           <div className="stat-card">
-            <p>Total Completed Tasks</p>
+            <p>Completed Tasks</p>
             <h2>{completedAppointments.length}</h2>
           </div>
 
@@ -234,15 +234,17 @@ function CompletedTasks() {
           </div>
 
           {loading ? (
-            <p>Loading completed tasks...</p>
-          ) : completedAppointments.length === 0 ? (
-            <p>No completed tasks yet.</p>
-          ) : visibleCompletedAppointments.length === 0 ? (
-            <p>No completed tasks match your search or filter.</p>
-          ) : (
-            <div className="appointments-grid">
-              {visibleCompletedAppointments.map((appointment) => {
-                const priority = appointment.priority || "Medium"
+          <p className="completed-empty-message">Loading completed tasks...</p>
+        ) : completedAppointments.length === 0 ? (
+          <p className="completed-empty-message">No completed tasks yet.</p>
+        ) : visibleCompletedAppointments.length === 0 ? (
+          <p className="completed-empty-message completed-empty-message-filter">
+            No completed tasks match your search or filter.
+          </p>
+        ) : (
+          <div className="appointments-grid">
+            {visibleCompletedAppointments.map((appointment) => {
+              const priority = appointment.priority || "Medium"
 
                 return (
                   <article className="appointment-card" key={appointment.id}>

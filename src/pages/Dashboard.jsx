@@ -177,8 +177,8 @@ return (
 
   <nav>
     <Link to="/dashboard">Dashboard</Link>
+    <Link to="/completed">Completed Tasks </Link>
     <Link to="/new">New Task</Link>
-    <Link to="/completed">Completed tasks </Link>
 
     <button className="sidebar-logout" onClick={handleLogout}>
       Log Out
@@ -268,24 +268,28 @@ return (
         </div>
       </div>
 
-          {loading ? (
-      <p>Loading tasks...</p>
-    ) : activeAppointments.length === 0 ? (
-      <p>No active tasks yet. Create a task to get started.</p>
-    ) : visibleAppointments.length === 0 ? (
-      <p>No active tasks match your search or filter.</p>
-    ) : (
-      <div className="appointments-grid">
-        {visibleAppointments.map((appointment) => (
-          <AppointmentCard
-            key={appointment.id}
-            appointment={appointment}
-            onDelete={handleDeleteAppointment}
-            onComplete={handleCompleteAppointment}
-          />
-        ))}
-      </div>
-    )}
+      {loading ? (
+    <p className="dashboard-empty-message">Loading tasks...</p>
+  ) : activeAppointments.length === 0 ? (
+    <p className="dashboard-empty-message">
+      No active tasks yet. Create a task to get started.
+    </p>
+  ) : visibleAppointments.length === 0 ? (
+    <p className="dashboard-empty-message dashboard-empty-message-filter">
+      No active tasks match your search or filter.
+    </p>
+  ) : (
+    <div className="appointments-grid">
+      {visibleAppointments.map((appointment) => (
+        <AppointmentCard
+          key={appointment.id}
+          appointment={appointment}
+          onDelete={handleDeleteAppointment}
+          onComplete={handleCompleteAppointment}
+        />
+      ))}
+    </div>
+  )}
       </section>
     </section>
   </main>
