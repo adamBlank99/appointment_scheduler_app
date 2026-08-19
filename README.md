@@ -94,10 +94,11 @@ Add only public browser configuration to `.env.local`:
 ```dotenv
 VITE_SUPABASE_URL=https://your-project-ref.supabase.co
 VITE_SUPABASE_PUBLISHABLE_KEY=your-public-publishable-key
+# Optional when using a different Turnstile widget:
 VITE_TURNSTILE_SITE_KEY=your-public-turnstile-site-key
 ```
 
-Never place a Supabase service-role key, database password, or Turnstile secret in a `VITE_` variable. If account services are not configured, Guest Demo remains available.
+The production Turnstile site key is public and included as the application default; the variable above overrides it for another widget. Never place a Supabase service-role key, database password, or Turnstile secret in a `VITE_` variable. If account services are not configured, Guest Demo remains available.
 
 ## Database and Edge Function setup
 
