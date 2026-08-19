@@ -184,6 +184,32 @@ textarea:focus-visible {
   color: #fff;
 }
 
+.sidebar-action:disabled {
+  cursor: wait;
+  opacity: 0.65;
+}
+
+.sidebar-action-danger:hover {
+  background: rgba(255, 92, 122, 0.12);
+  color: #ffabb9;
+}
+
+.sidebar-privacy-link {
+  padding: 4px 10px 0;
+  color: #7f8da5;
+  font-size: 0.68rem;
+  text-decoration: none;
+}
+
+.sidebar-privacy-link:hover { color: #fff; }
+
+.sidebar-error {
+  margin: 2px 8px 0;
+  color: #ffb5c1;
+  font-size: 0.68rem;
+  line-height: 1.35;
+}
+
 .app-content {
   min-width: 0;
   padding: 42px clamp(24px, 4vw, 64px) 64px;
@@ -291,30 +317,6 @@ textarea:focus-visible {
   background: #fff0f2;
 }
 
-.demo-banner {
-  max-width: 1440px;
-  margin: 0 auto 22px;
-  padding: 14px 18px;
-  display: flex;
-  align-items: center;
-  gap: 13px;
-  color: #4338a7;
-  background: linear-gradient(90deg, #eceaff, #f5f3ff);
-  border: 1px solid #d8d3ff;
-  border-radius: 13px;
-}
-
-.demo-banner div {
-  display: flex;
-  flex-wrap: wrap;
-  gap: 5px 9px;
-  font-size: 0.83rem;
-}
-
-.demo-banner span {
-  color: #685fa1;
-}
-
 .stats-grid {
   max-width: 1440px;
   margin: 0 auto 22px;
@@ -361,7 +363,8 @@ textarea:focus-visible {
 
 .workspace-panel,
 .form-card,
-.auth-card {
+.auth-card,
+.privacy-card {
   background: var(--surface);
   border: 1px solid #e0e7f0;
   border-radius: 18px;
@@ -642,6 +645,13 @@ textarea:focus-visible {
   font-weight: 500;
 }
 
+.field-help {
+  color: #7a879a;
+  font-size: 0.7rem;
+  font-weight: 500;
+  line-height: 1.45;
+}
+
 .form-field input,
 .form-field select,
 .form-field textarea,
@@ -681,18 +691,20 @@ textarea:focus-visible {
 .auth-page {
   min-height: 100vh;
   display: grid;
-  grid-template-columns: minmax(0, 1.05fr) minmax(480px, 0.95fr);
-  background: var(--navy);
+  grid-template-columns: minmax(0, 1fr) minmax(420px, 500px);
+  align-items: center;
+  gap: clamp(48px, 8vw, 120px);
+  padding: clamp(32px, 6vw, 76px);
+  background:
+    radial-gradient(circle at 12% 85%, rgba(91, 76, 240, 0.4), transparent 34%),
+    radial-gradient(circle at 88% 8%, rgba(74, 144, 226, 0.2), transparent 28%),
+    var(--navy);
 }
 
 .auth-intro {
-  min-height: 100vh;
-  padding: clamp(32px, 6vw, 76px);
+  min-height: min(720px, calc(100vh - 64px));
+  max-width: 680px;
   color: #fff;
-  background:
-    radial-gradient(circle at 15% 82%, rgba(91, 76, 240, 0.34), transparent 34%),
-    radial-gradient(circle at 90% 10%, rgba(74, 144, 226, 0.18), transparent 27%),
-    var(--navy);
   display: flex;
   flex-direction: column;
 }
@@ -706,15 +718,15 @@ textarea:focus-visible {
 .auth-brand svg { color: #877cff; }
 
 .auth-copy {
-  max-width: 660px;
+  max-width: 580px;
   margin: auto 0;
 }
 
 .auth-copy h1 {
-  margin: 13px 0 19px;
-  font-size: clamp(3rem, 6vw, 5.8rem);
-  line-height: 0.95;
-  letter-spacing: -0.065em;
+  margin: 14px 0 18px;
+  font-size: clamp(3.4rem, 6vw, 5.6rem);
+  line-height: 0.94;
+  letter-spacing: -0.06em;
 }
 
 .auth-copy > p:last-of-type {
@@ -723,19 +735,6 @@ textarea:focus-visible {
   font-size: 1.03rem;
   line-height: 1.65;
 }
-
-.auth-copy ul {
-  margin: 28px 0 0;
-  padding: 0;
-  display: grid;
-  gap: 11px;
-  list-style: none;
-  color: #d9e2f0;
-  font-size: 0.84rem;
-}
-
-.auth-copy li { display: flex; align-items: center; gap: 9px; }
-.auth-copy li svg { color: #7f73ff; }
 
 .auth-security {
   margin: 0;
@@ -747,15 +746,18 @@ textarea:focus-visible {
 }
 
 .auth-panel {
-  padding: clamp(24px, 6vw, 72px);
-  background: #f6f7fb;
   display: grid;
   place-items: center;
 }
 
 .auth-card {
-  width: min(100%, 480px);
+  width: 100%;
   padding: clamp(28px, 5vw, 44px);
+}
+
+.auth-panel .auth-card {
+  border-color: rgba(255, 255, 255, 0.16);
+  box-shadow: 0 28px 70px rgba(3, 8, 22, 0.36);
 }
 
 .auth-card h1,
@@ -813,6 +815,37 @@ textarea:focus-visible {
 .auth-form { display: grid; gap: 14px; }
 .auth-submit { width: 100%; margin-top: 5px; }
 
+.turnstile-container {
+  min-height: 65px;
+  max-width: 100%;
+  overflow: hidden;
+}
+
+.turnstile-error {
+  margin: 7px 0 0;
+  color: var(--danger);
+  font-size: 0.72rem;
+  line-height: 1.4;
+}
+
+.policy-consent {
+  grid-template-columns: 18px 1fr;
+  align-items: start;
+  gap: 9px;
+  line-height: 1.45;
+  cursor: pointer;
+}
+
+.auth-form .policy-consent input {
+  width: 17px;
+  min-height: 17px;
+  margin: 2px 0 0;
+  accent-color: var(--primary);
+}
+
+.policy-consent a,
+.auth-legal a { color: var(--primary-dark); font-weight: 750; }
+
 .auth-footer {
   margin: 22px 0 0;
   color: #7a879a;
@@ -821,6 +854,12 @@ textarea:focus-visible {
 }
 
 .auth-footer a { color: var(--primary-dark); font-weight: 750; text-decoration: none; }
+
+.auth-legal {
+  margin: 9px 0 0;
+  text-align: center;
+  font-size: 0.7rem;
+}
 
 .signup-page {
   min-height: 100vh;
@@ -837,6 +876,49 @@ textarea:focus-visible {
 .confirmation-state .eyebrow { justify-content: center; }
 .confirmation-state p:not(.eyebrow) { color: var(--muted); line-height: 1.6; }
 .confirmation-state .button { margin-top: 10px; }
+
+.privacy-page {
+  min-height: 100vh;
+  padding: 30px 20px 70px;
+  background: var(--canvas);
+}
+
+.privacy-shell {
+  width: min(100%, 760px);
+  margin: 0 auto;
+}
+
+.privacy-brand {
+  margin-bottom: 28px;
+  color: var(--ink);
+}
+
+.privacy-card {
+  padding: clamp(25px, 5vw, 48px);
+}
+
+.privacy-card h1 {
+  margin: 7px 0 10px;
+  font-size: clamp(2rem, 5vw, 3.2rem);
+  letter-spacing: -0.05em;
+}
+
+.privacy-updated,
+.privacy-intro,
+.privacy-card section p,
+.privacy-card li {
+  color: var(--muted);
+  line-height: 1.7;
+}
+
+.privacy-updated { margin: 0 0 20px; font-size: 0.75rem; }
+.privacy-intro { font-size: 1rem; }
+.privacy-card section { margin-top: 28px; }
+.privacy-card section h2 { margin: 0 0 8px; display: flex; align-items: center; gap: 8px; font-size: 1.15rem; }
+.privacy-card section p { margin: 0; font-size: 0.88rem; }
+.privacy-card ul { margin: 8px 0 0; padding-left: 20px; }
+.privacy-card li { margin: 5px 0; font-size: 0.88rem; }
+.privacy-card a { color: var(--primary-dark); }
 
 .route-loading {
   min-height: 100vh;
@@ -898,11 +980,17 @@ textarea:focus-visible {
   .profile-summary { display: none; }
   .sidebar-action { white-space: nowrap; }
   .app-content { padding-top: 30px; }
-  .auth-page { grid-template-columns: 1fr; }
-  .auth-intro { min-height: auto; padding: 32px 28px; }
-  .auth-copy { margin: 70px 0 55px; }
-  .auth-copy h1 { font-size: clamp(2.7rem, 9vw, 4.7rem); }
-  .auth-panel { padding: 45px 24px; }
+  .auth-page {
+    grid-template-columns: 1fr;
+    gap: 34px;
+    padding: 28px clamp(20px, 7vw, 64px) 48px;
+  }
+  .auth-intro { min-height: auto; max-width: none; }
+  .auth-copy { margin: 70px 0 16px; }
+  .auth-copy h1 { font-size: clamp(2.8rem, 10vw, 4.5rem); }
+  .auth-security { display: none; }
+  .auth-panel { width: 100%; }
+  .auth-panel .auth-card { max-width: 560px; }
 }
 
 @media (max-width: 680px) {
@@ -924,8 +1012,7 @@ textarea:focus-visible {
   .form-submit { width: 100%; }
   .form-card { padding: 22px 18px; }
   .form-card-heading { flex-direction: column; }
-  .auth-copy ul { display: none; }
-  .auth-security { display: none; }
+  .auth-copy { margin-top: 52px; }
 }
 
 @media (prefers-reduced-motion: reduce) {

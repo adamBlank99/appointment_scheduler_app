@@ -1,5 +1,6 @@
-import { CalendarDays, CheckCircle2, LayoutDashboard, LogOut, Plus, RotateCcw } from "lucide-react"
-import { NavLink, useNavigate } from "react-router-dom"
+import { CalendarDays, CheckCircle2, LayoutDashboard, LogOut, Plus, RotateCcw, Trash2 } from "lucide-react"
+import { useState } from "react"
+import { Link, NavLink, useNavigate } from "react-router-dom"
 import { useAuth } from "../context/authContext"
 import { supabase } from "../services/supabaseClient"
 
@@ -12,6 +13,8 @@ const navigation = [
 function AppShell({ children, onResetDemo }) {
   const navigate = useNavigate()
   const { user, isGuest, endGuestSession } = useAuth()
+  const [accountError, setAccountError] = useState("")
+  const [deletingAccount, setDeletingAccount] = useState(false)
 
   async function handleLogout() {
     if (isGuest) {
@@ -23,9 +26,34 @@ function AppShell({ children, onResetDemo }) {
     navigate("/login")
   }
 
+  async function handleDeleteAccount() {
+    const confirmation = window.prompt(
+      "This permanently deletes your account and appointments. Type DELETE to continue.",
+    )
+
+    if (confirmation !== "DELETE") return
+
+    setAccountError("")
+    setDeletingAccount(true)
+
+    try {
+      const { error } = await supabase.functions.invoke("delete-account", {
+        method: "POST",
+      })
+      if (error) throw error
+      await supabase.auth.signOut({ scope: "local" })
+      endGuestSession()
+      navigate("/login", { replace: true })
+    } catch {
+      setAccountError("Account deletion could not be completed. Please try again later.")
+    } finally {
+      setDeletingAccount(false)
+    }
+  }
+
   const displayName = isGuest
     ? "Guest recruiter demo"
-    : user?.user_metadata?.full_name || user?.email || "Signed-in user"
+    : user?.email || "Signed-in user"
 
   return (
     <main className="app-shell">
@@ -53,7 +81,10 @@ function AppShell({ children, onResetDemo }) {
             <span className="profile-avatar" aria-hidden="true">
               {isGuest ? "G" : displayName.charAt(0).toUpperCase()}
             </span>
-            <span><strong>{displayName}</strong><small>{isGuest ? "Supabase stays untouched" : "Private workspace"}</small></span>
+            <span>
+              <strong>{displayName}</strong>
+              {!isGuest && <small>Private workspace</small>}
+            </span>
           </div>
 
           {isGuest && onResetDemo && (
@@ -62,9 +93,17 @@ function AppShell({ children, onResetDemo }) {
             </button>
           )}
 
+          {!isGuest && (
+            <button className="sidebar-action sidebar-action-danger" type="button" onClick={handleDeleteAccount} disabled={deletingAccount}>
+              <Trash2 size={17} aria-hidden="true" />{deletingAccount ? "Deleting…" : "Delete account"}
+            </button>
+          )}
+
           <button className="sidebar-action" type="button" onClick={handleLogout}>
             <LogOut size={17} aria-hidden="true" />{isGuest ? "Exit demo" : "Log out"}
           </button>
+          <Link className="sidebar-privacy-link" to="/privacy">Privacy</Link>
+          {accountError && <p className="sidebar-error" role="alert">{accountError}</p>}
         </div>
       </aside>
 
