@@ -1,74 +1,53 @@
+import { ArrowLeft, CalendarPlus, CircleAlert } from "lucide-react"
 import { useState } from "react"
 import { Link, useNavigate } from "react-router-dom"
 import AppointmentForm from "../components/AppointmentForm"
+import AppShell from "../components/AppShell"
+import { useAuth } from "../context/authContext"
 import { createAppointment } from "../services/appointmentService"
-import { useAuth } from "../context/AuthContext"
-import { Pencil } from "lucide-react"
+import { createGuestAppointment } from "../services/guestAppointmentService"
 
 function NewAppointment() {
   const navigate = useNavigate()
-  const { user, isGuest} = useAuth()
-
+  const { user, isGuest } = useAuth()
   const [errorMessage, setErrorMessage] = useState("")
-  const [loading, setLoading] = useState(false)
+  const [saving, setSaving] = useState(false)
 
   async function handleCreateAppointment(formData) {
     setErrorMessage("")
-    setLoading(true)
+    setSaving(true)
 
     try {
-      if (isGuest) {
-        const currentGuestAppointments =
-          JSON.parse(sessionStorage.getItem("guestAppointments")) || []
-
-        const newGuestAppointment = {
-          id: crypto.randomUUID(),
-          ...formData,
-        }
-
-        const updatedGuestAppointments = [
-          ...currentGuestAppointments,
-          newGuestAppointment,
-        ]
-
-        sessionStorage.setItem(
-          "guestAppointments",
-          JSON.stringify(updatedGuestAppointments)
-        )
-
-        navigate("/dashboard")
-        return
-      }
-      await createAppointment(formData, user.id)
+      if (isGuest) createGuestAppointment(formData)
+      else await createAppointment(formData, user.id)
       navigate("/dashboard")
     } catch (error) {
       setErrorMessage(error.message)
     } finally {
-      setLoading(false)
+      setSaving(false)
     }
   }
 
-
   return (
-    <main className="form-page">
-      <section className="form-card">
-        <Link className="back-link" to="/dashboard">
-          ← Back to Dashboard
-        </Link>
+    <AppShell>
+      <div className="form-workspace">
+        <Link className="back-link" to="/dashboard"><ArrowLeft size={17} />Back to dashboard</Link>
+        <section className="form-card">
+          <div className="form-card-heading">
+            <span className="form-icon"><CalendarPlus size={25} /></span>
+            <div><p className="eyebrow eyebrow-dark">Add to schedule</p><h1>New appointment</h1><p>Capture the key details now so nothing slips later.</p></div>
+          </div>
 
-        <h1 className="form-page-h1">What's on the agenda
-        <Pencil className="form-title-icon" size={33} strokeWidth={3} />
-        ?
-        </h1>
+          {errorMessage && <p className="message message-error"><CircleAlert size={18} />{errorMessage}</p>}
 
-        {errorMessage && <p className="error-message">{errorMessage}</p>}
-
-        <AppointmentForm
-          buttonText={loading ? "Saving..." : "Save Appointment"}
-          onSubmit={handleCreateAppointment}
-        />
-      </section>
-    </main>
+          <AppointmentForm
+            buttonText={saving ? "Saving…" : "Save appointment"}
+            onSubmit={handleCreateAppointment}
+            submitting={saving}
+          />
+        </section>
+      </div>
+    </AppShell>
   )
 }
 

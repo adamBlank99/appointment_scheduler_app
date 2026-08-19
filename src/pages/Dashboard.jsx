@@ -1,312 +1,169 @@
-import { useEffect, useState } from "react"
-import { Link, useNavigate } from "react-router-dom"
-import { supabase } from "../services/supabaseClient"
-import { getAppointments, deleteAppointment, completeAppointment } from "../services/appointmentService"
-import { useAuth } from "../context/AuthContext"
+import { BriefcaseBusiness, CheckCircle2, CircleAlert, Plus, Search } from "lucide-react"
+import { useEffect, useMemo, useState } from "react"
+import { Link } from "react-router-dom"
 import AppointmentCard from "../components/AppointmentCard"
-import { NotebookText } from "lucide-react"
+import AppShell from "../components/AppShell"
+import { useAuth } from "../context/authContext"
+import {
+  deleteAppointment,
+  getAppointments,
+  setAppointmentCompletion,
+} from "../services/appointmentService"
+import {
+  deleteGuestAppointment,
+  getGuestAppointments,
+  initializeGuestAppointments,
+  setGuestAppointmentCompletion,
+} from "../services/guestAppointmentService"
 
 function Dashboard() {
-  const navigate = useNavigate()
-  const { user, isGuest, endGuestSession } = useAuth()
+  const { user, isGuest } = useAuth()
   const [appointments, setAppointments] = useState([])
   const [loading, setLoading] = useState(true)
   const [errorMessage, setErrorMessage] = useState("")
-
   const [searchTerm, setSearchTerm] = useState("")
   const [priorityFilter, setPriorityFilter] = useState("All")
   const [sortOrder, setSortOrder] = useState("soonest")
 
   useEffect(() => {
+    let isCurrent = true
+
     async function loadAppointments() {
+      setLoading(true)
+      setErrorMessage("")
+
       try {
-        if (isGuest) {
-          const guestAppointments =
-            JSON.parse(sessionStorage.getItem("guestAppointments")) || []
-  
-          setAppointments(guestAppointments)
-          return
-        }
-  
-        const savedAppointments = await getAppointments(user.id)
-        setAppointments(savedAppointments)
+        const savedAppointments = isGuest
+          ? getGuestAppointments()
+          : await getAppointments(user.id)
+        if (isCurrent) setAppointments(savedAppointments)
       } catch (error) {
-        setErrorMessage(error.message)
+        if (isCurrent) setErrorMessage(error.message)
       } finally {
-        setLoading(false)
+        if (isCurrent) setLoading(false)
       }
     }
-  
+
     loadAppointments()
+    return () => { isCurrent = false }
   }, [user, isGuest])
 
   async function handleDeleteAppointment(appointmentId) {
-    const confirmDelete = window.confirm(
-      "Are you sure you want to delete this task?"
-    )
-  
-    if (!confirmDelete) {
-      return
-    }
-  
+    if (!window.confirm("Delete this appointment? This action cannot be undone.")) return
+
     try {
       if (isGuest) {
-        const guestAppointments =
-          JSON.parse(sessionStorage.getItem("guestAppointments")) || []
-  
-        const updatedGuestAppointments = guestAppointments.filter(
-          (appointment) => appointment.id !== appointmentId
-        )
-  
-        sessionStorage.setItem(
-          "guestAppointments",
-          JSON.stringify(updatedGuestAppointments)
-        )
-  
-        setAppointments(updatedGuestAppointments)
-        return
+        setAppointments(deleteGuestAppointment(appointmentId))
+      } else {
+        await deleteAppointment(appointmentId, user.id)
+        setAppointments((current) => current.filter(({ id }) => id !== appointmentId))
       }
-  
-      await deleteAppointment(appointmentId, user.id)
-  
-      setAppointments((currentAppointments) =>
-        currentAppointments.filter(
-          (appointment) => appointment.id !== appointmentId
-        )
-      )
     } catch (error) {
       setErrorMessage(error.message)
     }
   }
-  
-  async function handleLogout() {
-    if (isGuest) {
-      sessionStorage.removeItem("guestAppointments")
-      endGuestSession()
-      navigate("/login")
-      return
-    }
-  
-    await supabase.auth.signOut()
-    navigate("/login")
-  }
 
-  const activeAppointments = appointments.filter(
-    (appointment) => !appointment.isCompleted
-  )
-  
-  const completedAppointments = appointments.filter(
-    (appointment) => appointment.isCompleted
-  )
-  
-  const totalTaskCount = activeAppointments.length
-  
-  const lowCount = activeAppointments.filter(
-    (appointment) => appointment.priority === "Low"
-  ).length
-  
-  const mediumCount = activeAppointments.filter(
-    (appointment) => appointment.priority === "Medium"
-  ).length
-  
-  const highCount = activeAppointments.filter(
-    (appointment) => appointment.priority === "High"
-  ).length
-  
-  const visibleAppointments = activeAppointments.filter((appointment) => {
-    const searchText = searchTerm.toLowerCase()
-  
-    const matchesSearch =
-      appointment.clientName.toLowerCase().includes(searchText) ||
-      appointment.notes.toLowerCase().includes(searchText)
-  
-    const matchesPriority =
-      priorityFilter === "All" || appointment.priority === priorityFilter
-  
-    return matchesSearch && matchesPriority
-  })
-
-  .sort((firstAppointment, secondAppointment) => {
-    const firstDate = new Date(
-      `${firstAppointment.date}T${firstAppointment.time}`
-    )
-
-    const secondDate = new Date(
-      `${secondAppointment.date}T${secondAppointment.time}`
-    )
-
-    if (sortOrder === "soonest") {
-      return firstDate - secondDate
-    }
-
-    return secondDate - firstDate
-  })
-  
   async function handleCompleteAppointment(appointmentId) {
     try {
       if (isGuest) {
-        const updatedGuestAppointments = appointments.map((appointment) =>
-          appointment.id === appointmentId
-            ? { ...appointment, isCompleted: true }
-            : appointment
-        )
-  
-        sessionStorage.setItem(
-          "guestAppointments",
-          JSON.stringify(updatedGuestAppointments)
-        )
-  
-        setAppointments(updatedGuestAppointments)
-        return
+        setAppointments(setGuestAppointmentCompletion(appointmentId, true))
+      } else {
+        const completed = await setAppointmentCompletion(appointmentId, true, user.id)
+        setAppointments((current) => current.map((item) => item.id === appointmentId ? completed : item))
       }
-  
-      const completedAppointment = await completeAppointment(
-        appointmentId,
-        user.id
-      )
-  
-      setAppointments((currentAppointments) =>
-        currentAppointments.map((appointment) =>
-          appointment.id === appointmentId ? completedAppointment : appointment
-        )
-      )
     } catch (error) {
       setErrorMessage(error.message)
     }
   }
 
-return (
-  <main className="dashboard-page">
-    <aside className="sidebar">
-    <h2 className="sidebar-logo">
-  <span className="sidebar-logo-text">
-    <span>EASY</span>
-    <span>Task</span>
-    <span>Helper</span>
-  </span>
-  <NotebookText className="sidebar-logo-icon" size={50} strokeWidth={2.5} />
-</h2>
+  function handleResetDemo() {
+    if (window.confirm("Reset the guest workspace to its original sample appointments?")) {
+      setAppointments(initializeGuestAppointments())
+      setSearchTerm("")
+      setPriorityFilter("All")
+      setSortOrder("soonest")
+    }
+  }
 
-  <nav>
-    <Link to="/dashboard">Dashboard</Link>
-    <Link to="/completed">Completed Tasks </Link>
-    <Link to="/new">New Task</Link>
+  const activeAppointments = appointments.filter(({ isCompleted }) => !isCompleted)
+  const completedCount = appointments.filter(({ isCompleted }) => isCompleted).length
 
-    <button className="sidebar-logout" onClick={handleLogout}>
-      Log Out
-    </button>
-  </nav>
-</aside>
+  const visibleAppointments = useMemo(() => {
+    const normalizedSearch = searchTerm.trim().toLowerCase()
 
-    <section className="dashboard-content">
-      <header className="dashboard-header">
-      <div className="dashboard-title-group">
-          <p className="eyebrow">Task Management</p>
-          <h1 className="page-title-bubble">Dashboard</h1>
-          <p className="dashboard-subtitle">
-            View and manage upcoming tasks.
-          </p>
+    return activeAppointments
+      .filter((appointment) => {
+        const matchesSearch =
+          appointment.clientName.toLowerCase().includes(normalizedSearch) ||
+          (appointment.notes || "").toLowerCase().includes(normalizedSearch)
+        const matchesPriority = priorityFilter === "All" || appointment.priority === priorityFilter
+        return matchesSearch && matchesPriority
+      })
+      .sort((first, second) => {
+        const firstDate = new Date(`${first.date}T${first.time}`)
+        const secondDate = new Date(`${second.date}T${second.time}`)
+        return sortOrder === "soonest" ? firstDate - secondDate : secondDate - firstDate
+      })
+  }, [activeAppointments, priorityFilter, searchTerm, sortOrder])
+
+  const highCount = activeAppointments.filter(({ priority }) => priority === "High").length
+  const mediumCount = activeAppointments.filter(({ priority }) => priority === "Medium").length
+
+  return (
+    <AppShell onResetDemo={isGuest ? handleResetDemo : undefined}>
+      <header className="page-header">
+        <div>
+          <p className="eyebrow">Appointment workspace</p>
+          <h1>Stay ahead of every commitment.</h1>
+          <p>Manage upcoming meetings and deadlines from one focused dashboard.</p>
         </div>
+        <Link className="button button-primary" to="/new"><Plus size={18} />New appointment</Link>
       </header>
 
-      {errorMessage && <p className="error-message">{errorMessage}</p>}
+      {isGuest && (
+        <section className="demo-banner" aria-label="Guest demo information">
+          <BriefcaseBusiness size={21} />
+          <div><strong>You’re exploring the live recruiter demo.</strong><span>Try every workflow—changes stay in this browser tab and never touch Supabase.</span></div>
+        </section>
+      )}
 
-      <section className="stats-and-completed">
-      <section className="stats-grid">
-        <div className="stat-card">
-          <p>Total Tasks</p>
-          <h2>{totalTaskCount}</h2>
-        </div>
+      {errorMessage && <p className="message message-error"><CircleAlert size={18} />{errorMessage}</p>}
 
-        <div className="stat-card">
-          <p>High</p>
-          <h2>{highCount}</h2>
-        </div>
-
-        <div className="stat-card">
-          <p>Medium</p>
-          <h2>{mediumCount}</h2>
-        </div>
-
-        <div className="stat-card">
-          <p>Low</p>
-          <h2>{lowCount}</h2>
-        </div>
+      <section className="stats-grid" aria-label="Appointment summary">
+        <article className="stat-card"><span>Upcoming</span><strong>{activeAppointments.length}</strong><small>Active appointments</small></article>
+        <article className="stat-card stat-high"><span>High priority</span><strong>{highCount}</strong><small>Needs attention</small></article>
+        <article className="stat-card stat-medium"><span>Medium priority</span><strong>{mediumCount}</strong><small>Plan ahead</small></article>
+        <article className="stat-card stat-complete"><span>Completed</span><strong>{completedCount}</strong><small><CheckCircle2 size={14} /> In history</small></article>
       </section>
 
-      <section className="sidebar-completed">
-        <h3 className="sidebar-completed-title">Completed Tasks</h3>
-
-        <div className="completed-count-box">
-          <span className="completed-count-circle">
-            {completedAppointments.length}
-          </span>
+      <section className="workspace-panel">
+        <div className="panel-heading">
+          <div><p className="eyebrow eyebrow-dark">Schedule</p><h2>Upcoming appointments</h2></div>
+          <div className="dashboard-controls">
+            <label className="search-control"><span className="sr-only">Search appointments</span><Search size={18} /><input type="search" placeholder="Search name or notes" value={searchTerm} onChange={(event) => setSearchTerm(event.target.value)} /></label>
+            <label><span className="sr-only">Filter by priority</span><select value={priorityFilter} onChange={(event) => setPriorityFilter(event.target.value)}><option value="All">All priorities</option><option value="High">High priority</option><option value="Medium">Medium priority</option><option value="Low">Low priority</option></select></label>
+            <label><span className="sr-only">Sort appointments</span><select value={sortOrder} onChange={(event) => setSortOrder(event.target.value)}><option value="soonest">Soonest first</option><option value="latest">Latest first</option></select></label>
+          </div>
         </div>
+
+        {loading ? (
+          <div className="empty-state"><span className="loading-spinner" />Loading appointments…</div>
+        ) : activeAppointments.length === 0 ? (
+          <div className="empty-state"><CalendarEmptyIcon /><h3>Your schedule is clear</h3><p>Create an appointment to start planning.</p><Link className="button button-primary" to="/new">Create appointment</Link></div>
+        ) : visibleAppointments.length === 0 ? (
+          <div className="empty-state"><Search size={28} /><h3>No matches found</h3><p>Try a different search term or priority.</p></div>
+        ) : (
+          <div className="appointments-grid">
+            {visibleAppointments.map((appointment) => <AppointmentCard key={appointment.id} appointment={appointment} onDelete={handleDeleteAppointment} onToggleCompletion={handleCompleteAppointment} />)}
+          </div>
+        )}
       </section>
+    </AppShell>
+  )
+}
 
-    </section>
-      <section className="appointments-section">
-      <div className="section-header">
-        <h2>Tasks</h2>
-
-        <Link className="primary-button" to="/new">
-          + New Task
-        </Link>
-        
-        <div className="dashboard-controls">
-          <input
-            type="text"
-            placeholder="Search by name"
-            value={searchTerm}
-            onChange={(event) => setSearchTerm(event.target.value)}
-          />
-
-          <select
-            value={priorityFilter}
-            onChange={(event) => setPriorityFilter(event.target.value)}
-          >
-            <option value="All">All Priorities</option>
-            <option value="High">High</option>
-            <option value="Medium">Medium</option>
-            <option value="Low">Low</option>
-          </select>
-
-          <select
-            value={sortOrder}
-            onChange={(event) => setSortOrder(event.target.value)}
-          >
-            <option value="soonest">Soonest First</option>
-            <option value="latest">Latest First</option>
-          </select>
-        </div>
-      </div>
-
-      {loading ? (
-    <p className="dashboard-empty-message">Loading tasks...</p>
-  ) : activeAppointments.length === 0 ? (
-    <p className="dashboard-empty-message">
-      No active tasks yet. Create a task to get started.
-    </p>
-  ) : visibleAppointments.length === 0 ? (
-    <p className="dashboard-empty-message dashboard-empty-message-filter">
-      No active tasks match your search or filter.
-    </p>
-  ) : (
-    <div className="appointments-grid">
-      {visibleAppointments.map((appointment) => (
-        <AppointmentCard
-          key={appointment.id}
-          appointment={appointment}
-          onDelete={handleDeleteAppointment}
-          onComplete={handleCompleteAppointment}
-        />
-      ))}
-    </div>
-  )}
-      </section>
-    </section>
-  </main>
-)
+function CalendarEmptyIcon() {
+  return <BriefcaseBusiness size={30} aria-hidden="true" />
 }
 
 export default Dashboard

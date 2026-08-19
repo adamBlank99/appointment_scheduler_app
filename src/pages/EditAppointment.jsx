@@ -1,51 +1,39 @@
+import { ArrowLeft, CircleAlert, Pencil } from "lucide-react"
 import { useEffect, useState } from "react"
 import { Link, useNavigate, useParams } from "react-router-dom"
 import AppointmentForm from "../components/AppointmentForm"
-import {
-  getAppointmentById,
-  updateAppointment,
-} from "../services/appointmentService"
-import { useAuth } from "../context/AuthContext"
+import AppShell from "../components/AppShell"
+import { useAuth } from "../context/authContext"
+import { getAppointmentById, updateAppointment } from "../services/appointmentService"
+import { getGuestAppointments, updateGuestAppointment } from "../services/guestAppointmentService"
 
 function EditAppointment() {
   const { id } = useParams()
   const navigate = useNavigate()
   const { user, isGuest } = useAuth()
-
   const [appointment, setAppointment] = useState(null)
   const [loading, setLoading] = useState(true)
   const [saving, setSaving] = useState(false)
   const [errorMessage, setErrorMessage] = useState("")
 
   useEffect(() => {
+    let isCurrent = true
+
     async function loadAppointment() {
       try {
-        if (isGuest) {
-          const guestAppointments =
-            JSON.parse(sessionStorage.getItem("guestAppointments")) || []
-
-          const guestAppointment = guestAppointments.find(
-            (appointment) => appointment.id === id
-          )
-
-          setAppointment(guestAppointment || null)
-          return
-        }
-
-        if (!user) {
-          return
-        }
-
-        const savedAppointment = await getAppointmentById(id, user.id)
-        setAppointment(savedAppointment)
+        const saved = isGuest
+          ? getGuestAppointments().find(({ id: appointmentId }) => appointmentId === id) || null
+          : await getAppointmentById(id, user.id)
+        if (isCurrent) setAppointment(saved)
       } catch (error) {
-        setErrorMessage(error.message)
+        if (isCurrent) setErrorMessage(error.message)
       } finally {
-        setLoading(false)
+        if (isCurrent) setLoading(false)
       }
     }
 
     loadAppointment()
+    return () => { isCurrent = false }
   }, [id, user, isGuest])
 
   async function handleUpdateAppointment(formData) {
@@ -53,31 +41,8 @@ function EditAppointment() {
     setSaving(true)
 
     try {
-      if (isGuest) {
-        const guestAppointments =
-          JSON.parse(sessionStorage.getItem("guestAppointments")) || []
-
-        const updatedGuestAppointments = guestAppointments.map((appointment) => {
-          if (appointment.id === id) {
-            return {
-              id: id,
-              ...formData,
-            }
-          }
-
-          return appointment
-        })
-
-        sessionStorage.setItem(
-          "guestAppointments",
-          JSON.stringify(updatedGuestAppointments)
-        )
-
-        navigate("/dashboard")
-        return
-      }
-
-      await updateAppointment(id, formData, user.id)
+      if (isGuest) updateGuestAppointment(id, formData)
+      else await updateAppointment(id, formData, user.id)
       navigate("/dashboard")
     } catch (error) {
       setErrorMessage(error.message)
@@ -86,50 +51,28 @@ function EditAppointment() {
     }
   }
 
-  if (loading) {
-    return (
-      <main className="form-page">
-        <section className="form-card">
-          <p>Loading appointment...</p>
-        </section>
-      </main>
-    )
-  }
-
-  if (!appointment) {
-    return (
-      <main className="form-page">
-        <section className="form-card">
-          <Link className="back-link" to="/dashboard">
-            ← Back to Dashboard
-          </Link>
-
-          <h1>Appointment Not Found</h1>
-          {errorMessage && <p className="error-message">{errorMessage}</p>}
-        </section>
-      </main>
-    )
-  }
-
   return (
-    <main className="form-page">
-      <section className="form-card">
-        <Link className="back-link" to="/dashboard">
-          ← Back to Dashboard
-        </Link>
-
-        <p className="eyebrow">Edit Appointment</p>
-        <h1>Edit Appointment</h1>
-
-        {errorMessage && <p className="error-message">{errorMessage}</p>}
-
-        <AppointmentForm
-          initialValues={appointment}
-          buttonText={saving ? "Updating..." : "Update Appointment"}
-          onSubmit={handleUpdateAppointment}
-        />
-      </section>
-    </main>
+    <AppShell>
+      <div className="form-workspace">
+        <Link className="back-link" to="/dashboard"><ArrowLeft size={17} />Back to dashboard</Link>
+        <section className="form-card">
+          {loading ? (
+            <div className="empty-state"><span className="loading-spinner" />Loading appointment…</div>
+          ) : !appointment ? (
+            <div className="empty-state"><CircleAlert size={32} /><h1>Appointment not found</h1><p>It may have been deleted or may not belong to your account.</p>{errorMessage && <p className="message message-error">{errorMessage}</p>}</div>
+          ) : (
+            <>
+              <div className="form-card-heading">
+                <span className="form-icon"><Pencil size={23} /></span>
+                <div><p className="eyebrow eyebrow-dark">Update details</p><h1>Edit appointment</h1><p>Keep timing, priority, and context accurate.</p></div>
+              </div>
+              {errorMessage && <p className="message message-error"><CircleAlert size={18} />{errorMessage}</p>}
+              <AppointmentForm initialValues={appointment} buttonText={saving ? "Updating…" : "Update appointment"} onSubmit={handleUpdateAppointment} submitting={saving} />
+            </>
+          )}
+        </section>
+      </div>
+    </AppShell>
   )
 }
 

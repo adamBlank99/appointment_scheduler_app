@@ -1,301 +1,127 @@
-import { useEffect, useState } from "react"
-import { Link, useNavigate } from "react-router-dom"
-import { supabase } from "../services/supabaseClient"
-import { getAppointments, deleteAppointment } from "../services/appointmentService"
-import { useAuth } from "../context/AuthContext"
-import { NotebookText } from "lucide-react"
-
+import { CheckCircle2, CircleAlert, Search } from "lucide-react"
+import { useEffect, useMemo, useState } from "react"
+import AppointmentCard from "../components/AppointmentCard"
+import AppShell from "../components/AppShell"
+import { useAuth } from "../context/authContext"
+import { deleteAppointment, getAppointments, setAppointmentCompletion } from "../services/appointmentService"
+import {
+  deleteGuestAppointment,
+  getGuestAppointments,
+  initializeGuestAppointments,
+  setGuestAppointmentCompletion,
+} from "../services/guestAppointmentService"
 
 function CompletedTasks() {
-  const navigate = useNavigate()
-  const { user, isGuest, endGuestSession } = useAuth()
-
+  const { user, isGuest } = useAuth()
   const [appointments, setAppointments] = useState([])
   const [loading, setLoading] = useState(true)
   const [errorMessage, setErrorMessage] = useState("")
-
   const [searchTerm, setSearchTerm] = useState("")
   const [priorityFilter, setPriorityFilter] = useState("All")
-  const [sortOrder, setSortOrder] = useState("soonest")
+  const [sortOrder, setSortOrder] = useState("latest")
 
   useEffect(() => {
+    let isCurrent = true
+
     async function loadAppointments() {
+      setLoading(true)
       try {
-        if (isGuest) {
-          const guestAppointments =
-            JSON.parse(sessionStorage.getItem("guestAppointments")) || []
-
-          setAppointments(guestAppointments)
-          return
-        }
-
-        if (!user) {
-          return
-        }
-
-        const savedAppointments = await getAppointments(user.id)
-        setAppointments(savedAppointments)
+        const saved = isGuest ? getGuestAppointments() : await getAppointments(user.id)
+        if (isCurrent) setAppointments(saved)
       } catch (error) {
-        setErrorMessage(error.message)
+        if (isCurrent) setErrorMessage(error.message)
       } finally {
-        setLoading(false)
+        if (isCurrent) setLoading(false)
       }
     }
 
     loadAppointments()
+    return () => { isCurrent = false }
   }, [user, isGuest])
 
   async function handleDeleteAppointment(appointmentId) {
-    const confirmDelete = window.confirm(
-      "Are you sure you want to delete this completed task?"
-    )
-
-    if (!confirmDelete) {
-      return
-    }
+    if (!window.confirm("Permanently delete this completed appointment?")) return
 
     try {
       if (isGuest) {
-        const guestAppointments =
-          JSON.parse(sessionStorage.getItem("guestAppointments")) || []
-
-        const updatedGuestAppointments = guestAppointments.filter(
-          (appointment) => appointment.id !== appointmentId
-        )
-
-        sessionStorage.setItem(
-          "guestAppointments",
-          JSON.stringify(updatedGuestAppointments)
-        )
-
-        setAppointments(updatedGuestAppointments)
-        return
+        setAppointments(deleteGuestAppointment(appointmentId))
+      } else {
+        await deleteAppointment(appointmentId, user.id)
+        setAppointments((current) => current.filter(({ id }) => id !== appointmentId))
       }
-
-      await deleteAppointment(appointmentId, user.id)
-
-      setAppointments((currentAppointments) =>
-        currentAppointments.filter(
-          (appointment) => appointment.id !== appointmentId
-        )
-      )
     } catch (error) {
       setErrorMessage(error.message)
     }
   }
 
-  async function handleLogout() {
-    if (isGuest) {
-      sessionStorage.removeItem("guestAppointments")
-      endGuestSession()
-      navigate("/login")
-      return
+  async function handleRestoreAppointment(appointmentId) {
+    try {
+      if (isGuest) {
+        setAppointments(setGuestAppointmentCompletion(appointmentId, false))
+      } else {
+        const restored = await setAppointmentCompletion(appointmentId, false, user.id)
+        setAppointments((current) => current.map((item) => item.id === appointmentId ? restored : item))
+      }
+    } catch (error) {
+      setErrorMessage(error.message)
     }
-
-    await supabase.auth.signOut()
-    navigate("/login")
   }
 
-  const completedAppointments = appointments.filter(
-    (appointment) => appointment.isCompleted
-  )
+  function handleResetDemo() {
+    if (window.confirm("Reset the guest workspace to its original sample appointments?")) {
+      setAppointments(initializeGuestAppointments())
+      setSearchTerm("")
+      setPriorityFilter("All")
+    }
+  }
 
-  const completedHighCount = completedAppointments.filter(
-    (appointment) => appointment.priority === "High"
-  ).length
-
-  const completedMediumCount = completedAppointments.filter(
-    (appointment) => appointment.priority === "Medium"
-  ).length
-
-  const completedLowCount = completedAppointments.filter(
-    (appointment) => appointment.priority === "Low"
-  ).length
-
-  const visibleCompletedAppointments = completedAppointments
-    .filter((appointment) => {
-      const searchText = searchTerm.toLowerCase()
-
-      const matchesSearch =
-        appointment.clientName.toLowerCase().includes(searchText) ||
-        (appointment.notes || "").toLowerCase().includes(searchText)
-
-      const matchesPriority =
-        priorityFilter === "All" || appointment.priority === priorityFilter
-
-      return matchesSearch && matchesPriority
-    })
-    .sort((firstAppointment, secondAppointment) => {
-      const firstDate = new Date(
-        `${firstAppointment.date}T${firstAppointment.time}`
-      )
-
-      const secondDate = new Date(
-        `${secondAppointment.date}T${secondAppointment.time}`
-      )
-
-      if (sortOrder === "soonest") {
-        return firstDate - secondDate
-      }
-
-      return secondDate - firstDate
-    })
+  const completedAppointments = appointments.filter(({ isCompleted }) => isCompleted)
+  const visibleAppointments = useMemo(() => {
+    const normalizedSearch = searchTerm.trim().toLowerCase()
+    return completedAppointments
+      .filter((appointment) => {
+        const matchesSearch = appointment.clientName.toLowerCase().includes(normalizedSearch) || (appointment.notes || "").toLowerCase().includes(normalizedSearch)
+        const matchesPriority = priorityFilter === "All" || appointment.priority === priorityFilter
+        return matchesSearch && matchesPriority
+      })
+      .sort((first, second) => {
+        const firstDate = new Date(`${first.date}T${first.time}`)
+        const secondDate = new Date(`${second.date}T${second.time}`)
+        return sortOrder === "soonest" ? firstDate - secondDate : secondDate - firstDate
+      })
+  }, [completedAppointments, priorityFilter, searchTerm, sortOrder])
 
   return (
-    <main className="dashboard-page">
-      <aside className="sidebar">
-      <h2 className="sidebar-logo">
-      <span className="sidebar-logo-text">
-        <span>EASY</span>
-        <span>Task</span>
-        <span>Helper</span>
-      </span>
-      <NotebookText className="sidebar-logo-icon" size={50} strokeWidth={2.5} />
-    </h2>
+    <AppShell onResetDemo={isGuest ? handleResetDemo : undefined}>
+      <header className="page-header compact-header">
+        <div><p className="eyebrow">Appointment history</p><h1>Completed appointments.</h1><p>Review finished work or restore an item to your active schedule.</p></div>
+      </header>
 
-        <nav>
-          <Link to="/dashboard">Dashboard</Link>
-          <Link to="/completed">Completed Tasks</Link>
-          <Link to="/new">New Task</Link>
+      {errorMessage && <p className="message message-error"><CircleAlert size={18} />{errorMessage}</p>}
 
-          <button className="sidebar-logout" onClick={handleLogout}>
-            Log Out
-          </button>
-        </nav>
-      </aside>
-
-      <section className="dashboard-content">
-        <header className="dashboard-header">
-        <div className="dashboard-title-group">
-          <p className="eyebrow">Task Management</p>
-          <h1 className="page-title-bubble">Completed Tasks</h1>
-          <p className="dashboard-subtitle">
-            View and manage completed tasks.
-          </p>
+      <section className="workspace-panel">
+        <div className="panel-heading">
+          <div><p className="eyebrow eyebrow-dark">History</p><h2>{completedAppointments.length} completed</h2></div>
+          <div className="dashboard-controls">
+            <label className="search-control"><span className="sr-only">Search completed appointments</span><Search size={18} /><input type="search" placeholder="Search completed" value={searchTerm} onChange={(event) => setSearchTerm(event.target.value)} /></label>
+            <label><span className="sr-only">Filter by priority</span><select value={priorityFilter} onChange={(event) => setPriorityFilter(event.target.value)}><option value="All">All priorities</option><option value="High">High priority</option><option value="Medium">Medium priority</option><option value="Low">Low priority</option></select></label>
+            <label><span className="sr-only">Sort completed appointments</span><select value={sortOrder} onChange={(event) => setSortOrder(event.target.value)}><option value="latest">Latest first</option><option value="soonest">Oldest first</option></select></label>
+          </div>
         </div>
-        </header>
 
-
-        {errorMessage && <p className="error-message">{errorMessage}</p>}
-
-        <section className="stats-and-completed">
-        <section className="stats-grid">
-
-          <div className="stat-card">
-            <p>High</p>
-            <h2>{completedHighCount}</h2>
-          </div>
-
-          <div className="stat-card">
-            <p>Medium</p>
-            <h2>{completedMediumCount}</h2>
-          </div>
-
-          <div className="stat-card">
-            <p>Low</p>
-            <h2>{completedLowCount}</h2>
-          </div>
-        </section>
-
-        <section className="sidebar-completed">
-        <h3 className="sidebar-completed-title">Completed Tasks</h3>
-
-        <div className="completed-count-box">
-          <span className="completed-count-circle">
-            {completedAppointments.length}
-          </span>
-        </div>
-      </section>
-      </section>
-
-        <section className="appointments-section">
-          <div className="section-header">
-            <h2>Completed Tasks</h2>
-
-            <div className="dashboard-controls">
-              <input
-                type="text"
-                placeholder="Search by name or notes"
-                value={searchTerm}
-                onChange={(event) => setSearchTerm(event.target.value)}
-              />
-
-              <select
-                value={priorityFilter}
-                onChange={(event) => setPriorityFilter(event.target.value)}
-              >
-                <option value="All">All Priorities</option>
-                <option value="High">High</option>
-                <option value="Medium">Medium</option>
-                <option value="Low">Low</option>
-              </select>
-
-              <select
-                value={sortOrder}
-                onChange={(event) => setSortOrder(event.target.value)}
-              >
-                <option value="soonest">Soonest First</option>
-                <option value="latest">Latest First</option>
-              </select>
-            </div>
-          </div>
-
-          {loading ? (
-          <p className="completed-empty-message">Loading completed tasks...</p>
+        {loading ? (
+          <div className="empty-state"><span className="loading-spinner" />Loading history…</div>
         ) : completedAppointments.length === 0 ? (
-          <p className="completed-empty-message">No completed tasks yet.</p>
-        ) : visibleCompletedAppointments.length === 0 ? (
-          <p className="completed-empty-message completed-empty-message-filter">
-            No completed tasks match your search or filter.
-          </p>
+          <div className="empty-state"><CheckCircle2 size={32} /><h3>No completed appointments yet</h3><p>Completed items will be kept here for easy reference.</p></div>
+        ) : visibleAppointments.length === 0 ? (
+          <div className="empty-state"><Search size={28} /><h3>No matches found</h3><p>Try a different search term or priority.</p></div>
         ) : (
           <div className="appointments-grid">
-            {visibleCompletedAppointments.map((appointment) => {
-              const priority = appointment.priority || "Medium"
-
-                return (
-                  <article className="appointment-card" key={appointment.id}>
-                    <div className="appointment-card-header">
-                      <div>
-                        <h3>{appointment.clientName}</h3>
-                      </div>
-
-                      <span
-                        className={`priority-badge ${priority.toLowerCase()}`}
-                      >
-                        {priority}
-                      </span>
-                    </div>
-
-                    <div className="appointment-details">
-                      <p>
-                        <strong>Date:</strong> {appointment.date}
-                      </p>
-                      <p>
-                        <strong>Time:</strong> {appointment.time}
-                      </p>
-                      <p>
-                        <strong>Notes:</strong> {appointment.notes}
-                      </p>
-                    </div>
-
-                    <div className="appointment-actions">
-                      <button
-                        className="danger-button"
-                        type="button"
-                        onClick={() => handleDeleteAppointment(appointment.id)}
-                      >
-                        Delete
-                      </button>
-                    </div>
-                  </article>
-                )
-              })}
-            </div>
-          )}
-        </section>
+            {visibleAppointments.map((appointment) => <AppointmentCard key={appointment.id} appointment={appointment} onDelete={handleDeleteAppointment} onToggleCompletion={handleRestoreAppointment} />)}
+          </div>
+        )}
       </section>
-    </main>
+    </AppShell>
   )
 }
 

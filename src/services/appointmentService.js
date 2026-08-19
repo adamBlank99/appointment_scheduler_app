@@ -12,10 +12,10 @@ function formatAppointment(row) {
   }
 }
 
-export async function completeAppointment(appointmentId, userId) {
+export async function setAppointmentCompletion(appointmentId, isCompleted, userId) {
   const response = await supabase
     .from("appointments")
-    .update({ is_completed: true })
+    .update({ is_completed: isCompleted })
     .eq("id", appointmentId)
     .eq("user_id", userId)
     .select()
@@ -70,7 +70,6 @@ export async function createAppointment(formData, userId) {
 
 export async function updateAppointment(appointmentId, formData, userId) {
   const updatedAppointment = {
-    user_id: userId,
     client_name: formData.clientName,
     appointment_date: formData.date,
     appointment_time: formData.time,
@@ -99,12 +98,13 @@ export async function deleteAppointment(appointmentId, userId) {
     .delete()
     .eq("id", appointmentId)
     .eq("user_id", userId)
+    .select("id")
 
   if (response.error) {
     throw response.error
   }
 
-  return true
+  return response.data.length > 0
 }
 
 export async function getAppointmentById(appointmentId, userId) {
@@ -113,11 +113,11 @@ export async function getAppointmentById(appointmentId, userId) {
     .select("*")
     .eq("id", appointmentId)
     .eq("user_id", userId)
-    .single()
+    .maybeSingle()
 
   if (response.error) {
     throw response.error
   }
 
-  return formatAppointment(response.data)
+  return response.data ? formatAppointment(response.data) : null
 }
