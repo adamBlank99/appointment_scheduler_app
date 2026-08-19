@@ -1,4 +1,5 @@
 const GUEST_APPOINTMENTS_KEY = "guestAppointments"
+const MAX_GUEST_APPOINTMENTS = 100
 
 function formatLocalDate(date) {
   const year = date.getFullYear()
@@ -80,8 +81,9 @@ export function getGuestAppointments() {
 }
 
 export function saveGuestAppointments(appointments) {
-  sessionStorage.setItem(GUEST_APPOINTMENTS_KEY, JSON.stringify(appointments))
-  return appointments
+  const boundedAppointments = appointments.slice(0, MAX_GUEST_APPOINTMENTS)
+  sessionStorage.setItem(GUEST_APPOINTMENTS_KEY, JSON.stringify(boundedAppointments))
+  return boundedAppointments
 }
 
 export function initializeGuestAppointments() {
@@ -96,12 +98,17 @@ export function ensureGuestAppointments() {
 }
 
 export function createGuestAppointment(formData) {
+  const appointments = getGuestAppointments()
+  if (appointments.length >= MAX_GUEST_APPOINTMENTS) {
+    throw new Error(`Guest Demo is limited to ${MAX_GUEST_APPOINTMENTS} appointments. Reset the demo to continue.`)
+  }
+
   const appointment = {
     id: crypto.randomUUID(),
     ...formData,
     isCompleted: false,
   }
-  return saveGuestAppointments([...getGuestAppointments(), appointment])
+  return saveGuestAppointments([...appointments, appointment])
 }
 
 export function updateGuestAppointment(appointmentId, formData) {

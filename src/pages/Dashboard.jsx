@@ -114,18 +114,11 @@ function Dashboard() {
       <header className="page-header">
         <div>
           <p className="eyebrow">Appointment workspace</p>
-          <h1>Stay ahead of every commitment.</h1>
+          <h1>Keep track of what&apos;s coming.</h1>
           <p>Manage upcoming meetings and deadlines from one focused dashboard.</p>
         </div>
         <Link className="button button-primary" to="/new"><Plus size={18} />New appointment</Link>
       </header>
-
-      {isGuest && (
-        <section className="demo-banner" aria-label="Guest demo information">
-          <BriefcaseBusiness size={21} />
-          <div><strong>You’re exploring the live recruiter demo.</strong><span>Try every workflow—changes stay in this browser tab and never touch Supabase.</span></div>
-        </section>
-      )}
 
       {errorMessage && <p className="message message-error"><CircleAlert size={18} />{errorMessage}</p>}
 

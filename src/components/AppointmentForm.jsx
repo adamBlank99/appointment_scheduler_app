@@ -83,6 +83,7 @@ function AppointmentForm({
           placeholder="Add context, a location, or preparation details"
           maxLength={500}
         />
+        <small className="field-help">Do not enter passwords, financial information, health information, or other sensitive personal data.</small>
       </label>
 
       <button className="button button-primary form-submit" type="submit" disabled={submitting}>

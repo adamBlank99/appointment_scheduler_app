@@ -5,6 +5,7 @@ import Login from "./pages/Login"
 import Signup from "./pages/Signup"
 import NewAppointment from "./pages/NewAppointment"
 import EditAppointment from "./pages/EditAppointment"
+import Privacy from "./pages/Privacy"
 import ProtectedRoute from "./components/ProtectedRoute"
 import "./App.css"
 
@@ -16,6 +17,7 @@ function App() {
 
         <Route path="/login" element={<Login />} />
         <Route path="/signup" element={<Signup />} />
+        <Route path="/privacy" element={<Privacy />} />
 
         <Route
           path="/dashboard"
